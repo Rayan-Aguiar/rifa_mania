@@ -20,6 +20,8 @@ export default {
   			blackCustom: '#000201',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
+        'raffle-main': '#0C756F',       
+        'raffle-highlight': '#FDCF6F',
   			card: {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'
