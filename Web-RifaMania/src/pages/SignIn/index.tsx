@@ -2,11 +2,34 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { useState } from "react"
+import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
+import { z } from "zod"
+
+
+const loginSchema = z.object({
+  email: z.string().email("Email inválido").nonempty("Email obrigatório"),
+  password: z.string().min(6, "Senha muito curta").nonempty("Senha obrigatória"),
+})
+
+type LoginFormInputs = z.infer<typeof loginSchema>
 
 export default function SignIn() {
     const [ showPassword, setShowPassword ] = useState(false)
+
+    const {
+      register, 
+      handleSubmit,
+      formState: { errors },
+    } = useForm<LoginFormInputs>({
+      resolver: zodResolver(loginSchema)
+    })
+
+    const onSubmit = (data: LoginFormInputs) => {
+      console.log(data)
+    }
 
   return (
     <div className="flex min-h-svh w-full items-center justify-center bg-whiteCustom">
@@ -19,7 +42,7 @@ export default function SignIn() {
               Um novo mundo se abre pra você
             </p>
           </div>
-          <form className="w-full">
+          <form onSubmit={handleSubmit(onSubmit)} className="w-full">
             <Label htmlFor="email" className="text-raffle-highlight">
               Email
             </Label>
@@ -27,8 +50,12 @@ export default function SignIn() {
               type="email"
               id="email"
               placeholder="exemplo@exemplo.com"
-              className="mb-4 w-full border-none bg-blackCustom/30 text-raffle-highlight placeholder:text-raffle-highlight/50 focus-visible:ring-raffle-highlight"
+              {...register("email")}
+              className={`mb-4 w-full border-none bg-blackCustom/30 text-raffle-highlight placeholder:text-raffle-highlight/50 focus-visible:ring-raffle-highlight ${errors.email ? 'border-red-500' : 'border-none'} `}
             />
+            {errors.email &&(
+              <p className="my-2 text-xs text-whiteCustom bg-red-500 w-fit p-1 rounded">{errors.email.message}</p>
+            )}
             <Label htmlFor="password" className="text-raffle-highlight">
               Senha
             </Label>
@@ -36,8 +63,12 @@ export default function SignIn() {
               type={showPassword ? "text" : "password"}
               id="password"
               placeholder="***********"
-              className="mb-4 w-full border-none bg-blackCustom/30 text-raffle-highlight placeholder:text-raffle-highlight/50 focus-visible:ring-raffle-highlight"
+              {...register("password")}
+              className={`mb-4 w-full border-none bg-blackCustom/30 text-raffle-highlight placeholder:text-raffle-highlight/50 focus-visible:ring-raffle-highlight ${errors.password ? 'border-red-500' : 'border-none'} `}
             />
+            {errors.password &&(
+              <p className="my-2 text-xs text-whiteCustom bg-red-500 w-fit p-1 rounded">{errors.password.message}</p>
+            )}
             <div className="my-4 flex items-center gap-2">
               <Checkbox
                 id="showPassword"
@@ -56,7 +87,7 @@ export default function SignIn() {
               Entrar
             </Button>
           </form>
-          <div className="flex justify-end w-full mt-4">
+          <div className="flex justify-start w-full mt-4">
             <Link to="#" className="text-raffle-highlight hover:underline underline-offset-4 font-semibold">Criar conta!</Link>
           </div>
         </div>
