@@ -1,6 +1,7 @@
 import { CardLanding } from "@/components/CardLanding"
 import { Button } from "@/components/ui/button"
 import { Bolt, Gift, Rocket, SwatchBook, Ticket } from "lucide-react"
+import { Link } from "react-router-dom"
 
 export default function LandingPage() {
   return (
@@ -13,12 +14,14 @@ export default function LandingPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button className="border-2 border-raffle-main bg-transparent text-raffle-main hover:bg-raffle-main hover:text-whiteCustom">
-              Criar conta
-            </Button>
+                <Button className="border-2 border-raffle-main bg-transparent text-raffle-main hover:bg-raffle-main hover:text-whiteCustom">
+                Criar conta
+                </Button>
+            <Link to="/signin">
             <Button className="bg-raffle-main text-whiteCustom hover:bg-raffle-main/80">
               Acessar conta
             </Button>
+            </Link>
           </div>
         </div>
       </header>
@@ -50,7 +53,7 @@ export default function LandingPage() {
           <section className="mt-20 flex w-full justify-center gap-10">
             <CardLanding
               title="Bilhetes premidados"
-              description="Adicione quantos bilhetes premiados desejar! Atualização em tempo real dos bilhetes premiados."
+              description="Adicione quantos bilhetes premiados desejar! "
               icon={Gift}
             />
             <CardLanding
