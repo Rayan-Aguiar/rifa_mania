@@ -88,7 +88,7 @@ export default function SignIn() {
             </Button>
           </form>
           <div className="flex justify-start w-full mt-4">
-            <Link to="#" className="text-raffle-highlight hover:underline underline-offset-4 font-semibold">Criar conta!</Link>
+            <Link to="/signup" className="text-raffle-highlight hover:underline underline-offset-4 font-semibold">Criar conta!</Link>
           </div>
         </div>
 

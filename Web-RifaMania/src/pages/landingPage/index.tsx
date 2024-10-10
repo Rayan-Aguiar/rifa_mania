@@ -14,9 +14,11 @@ export default function LandingPage() {
             </p>
           </div>
           <div className="flex gap-2">
+            <Link to="/signup">
                 <Button className="border-2 border-raffle-main bg-transparent text-raffle-main hover:bg-raffle-main hover:text-whiteCustom">
                 Criar conta
                 </Button>
+            </Link>
             <Link to="/signin">
             <Button className="bg-raffle-main text-whiteCustom hover:bg-raffle-main/80">
               Acessar conta
@@ -37,9 +39,11 @@ export default function LandingPage() {
                 sua campanha na internet
               </p>
               <div>
-                <Button className="flex w-48 items-center gap-2 bg-raffle-main">
-                  Criar Campanha <Rocket className="w-4" />
-                </Button>
+                <Link to="/signup">
+                  <Button className="flex w-48 items-center gap-2 bg-raffle-main">
+                    Criar Campanha <Rocket className="w-4" />
+                  </Button>
+                </Link>
               </div>
             </div>
             <div>
