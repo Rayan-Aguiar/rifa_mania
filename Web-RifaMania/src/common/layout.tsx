@@ -28,7 +28,9 @@ export default function Layout(){
                         <Link to="/metodo-pagamento">
                             <li className="flex gap-1 items-center hover:bg-raffle-highlight/20 rounded p-2 cursor-pointer"><Wallet /> Configure pagamento</li>
                         </Link>
-                        <li className="flex gap-1 items-center hover:bg-raffle-highlight/20 rounded p-2 cursor-pointer"><User2Icon/> Minha conta</li>
+                        <Link to="/perfil">
+                            <li className="flex gap-1 items-center hover:bg-raffle-highlight/20 rounded p-2 cursor-pointer"><User2Icon/> Minha conta</li>
+                        </Link>
                         <li className="flex gap-1 items-center hover:bg-raffle-highlight/20 rounded p-2 cursor-pointer"><LogOut/> Sair</li>
                     </ul>
 
