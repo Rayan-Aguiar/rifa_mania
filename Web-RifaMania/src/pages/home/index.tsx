@@ -40,8 +40,8 @@ export default function Home() {
         </Button>
       </div>
       <h2 className="text-xl font-bold">Suas Campanhas</h2>
-
-      <div className="flex h-fit w-full flex-col gap-2 rounded-xl bg-white/40 p-4 shadow-sm">
+        {/* TODO: transform div in component */}
+      <div className="flex h-fit w-full flex-col gap-2 rounded-xl bg-white/40 p-4 shadow-sm"> 
         <div className="flex w-full items-center justify-between">
           <div className="h-24 w-36 overflow-hidden rounded-lg">
             <img

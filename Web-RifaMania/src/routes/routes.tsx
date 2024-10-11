@@ -5,6 +5,7 @@ import SignIn from "@/pages/SignIn"
 import SignUp from "@/pages/SignUp"
 import Layout from "@/common/layout"
 import Home from "@/pages/home"
+import PaymentPage from "@/pages/Payment"
 
 export default function Router() {
     return(
@@ -16,6 +17,7 @@ export default function Router() {
 
                 <Route element={<Layout />}>
                     <Route path="/home" element={<Home />} />
+                    <Route path="/metodo-pagamento" element={<PaymentPage />} />
                 
                 </Route>
                 

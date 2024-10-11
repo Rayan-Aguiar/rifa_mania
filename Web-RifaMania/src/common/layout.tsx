@@ -1,5 +1,6 @@
 import LogoImg from "@/assets/Rifamania-logo.png"
 import { Bell, LogOut, Ticket, User2Icon, Wallet } from "lucide-react"
+import { Link } from "react-router-dom"
 import { Outlet } from "react-router-dom"
 
 export default function Layout(){
@@ -20,9 +21,13 @@ export default function Layout(){
                             <p className="text-xs text-whiteCustom truncate">rayansiqueira@gmail.com</p>
                         </div>
                     </div>
-                    <ul className="mt-4 text-whiteCustom flex flex-col gap-2">
-                        <li className="flex gap-1 items-center hover:bg-raffle-highlight/20 rounded p-2 cursor-pointer"><Ticket /> Campanhas</li>
-                        <li className="flex gap-1 items-center hover:bg-raffle-highlight/20 rounded p-2 cursor-pointer"><Wallet /> Configure pagamento</li>
+                    <ul className="mt-4 text-whiteCustom flex flex-col gap-2 ">
+                        <Link to="/home">
+                            <li className="flex gap-1 items-center hover:bg-raffle-highlight/20 rounded p-2 cursor-pointer"><Ticket /> Campanhas</li>
+                        </Link>
+                        <Link to="/metodo-pagamento">
+                            <li className="flex gap-1 items-center hover:bg-raffle-highlight/20 rounded p-2 cursor-pointer"><Wallet /> Configure pagamento</li>
+                        </Link>
                         <li className="flex gap-1 items-center hover:bg-raffle-highlight/20 rounded p-2 cursor-pointer"><User2Icon/> Minha conta</li>
                         <li className="flex gap-1 items-center hover:bg-raffle-highlight/20 rounded p-2 cursor-pointer"><LogOut/> Sair</li>
                     </ul>
