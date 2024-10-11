@@ -8,6 +8,8 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import ImgCard from "@/assets/img-card.png"
+
 
 const signupSchema = z.object({
   name: z.string().nonempty("Nome obrigatório"),
@@ -43,13 +45,13 @@ export default function SignUp() {
         {/* Div do conteúdo de registro */}
         <div className="flex w-1/2 flex-col items-center justify-center p-6">
           <div className="flex justify-start w-full mb-4">
-            <Link to="#" className="flex items-center gap-2 text-whiteCustom hover:underline underline-offset-4">
+            <Link to="/signin" className="flex items-center gap-2 text-whiteCustom hover:underline underline-offset-4">
               <ArrowLeft className="w-4" /> Voltar para login
             </Link>
           </div>
-          <div className="mb-8 w-full">
+          <div className="mb-4 w-full">
             <h1 className="text-4xl font-bold text-raffle-highlight">Registre-se</h1>
-            <p className="font-thin text-whiteCustom">Para um novo mundo de possibilidades</p>
+            <p className="font-thin text-whiteCustom">Para um novo mundo de possibilidades...</p>
           </div>
           <form onSubmit={handleSubmit(onSubmit)} className="w-full">
             <Label htmlFor="name" className="text-raffle-highlight">Seu nome</Label>
@@ -123,7 +125,7 @@ export default function SignUp() {
         {/* Div da imagem */}
         <div className="w-1/2">
           <img
-            src="https://app.rifaup.com.br/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogin1.b9837bdb.png&w=640&q=100"
+            src={ImgCard}
             alt=""
             className="h-[700px] rounded-3xl object-cover"
           />

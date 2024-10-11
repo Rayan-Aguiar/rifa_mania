@@ -2,6 +2,7 @@ import { CardLanding } from "@/components/CardLanding"
 import { Button } from "@/components/ui/button"
 import { Bolt, Gift, Rocket, SwatchBook, Ticket } from "lucide-react"
 import { Link } from "react-router-dom"
+import LogoImg from "@/assets/Rifamania-logo.png"
 
 export default function LandingPage() {
   return (
@@ -9,9 +10,7 @@ export default function LandingPage() {
       <header className="h-1/5 bg-white/30 p-6">
         <div className="container mx-auto flex items-center justify-between">
           <div>
-            <p className="text-2xl font-bold uppercase text-raffle-main">
-              Rifa Mania
-            </p>
+            <img src={LogoImg} alt="logo rifa mania" className="w-24" />
           </div>
           <div className="flex gap-2">
             <Link to="/signup">

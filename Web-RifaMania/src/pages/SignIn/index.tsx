@@ -7,6 +7,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
 import { z } from "zod"
+import ImgCard from "@/assets/img-card.png"
 
 
 const loginSchema = z.object({
@@ -95,7 +96,7 @@ export default function SignIn() {
         {/* Div da imagem */}
         <div className="w-1/2">
           <img
-            src="https://app.rifaup.com.br/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogin1.b9837bdb.png&w=640&q=100"
+            src={ImgCard}
             alt=""
             className="h-[700px] rounded-3xl object-cover"
           />
