@@ -62,30 +62,6 @@ export async function userRoutes(app: FastifyInstance) {
     }
   });
 
-
-  app.post("/auth/login", async (request: FastifyRequest<{ Body: LoginRequest }>, reply) => {
-    const { email, password } = request.body;
-
-    const user = await prisma.user.findUnique({ where: { email } });
-
-    if (!user) {
-      return reply.code(401).send({ message: "Email ou senha inválidos" });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      return reply.code(401).send({ message: "Email ou senha inválidos" });
-    }
-
-    const token = jwt.sign({ userId: user.id }, env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-
-    reply.send({ token });
-  });
-
-
   app.delete('/users', async (request: FastifyRequest, reply: FastifyReply) => {
     const token = request.headers['authorization']?.split(' ')[1];
 

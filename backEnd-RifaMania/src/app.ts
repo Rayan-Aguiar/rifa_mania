@@ -3,12 +3,14 @@ import { ZodError } from 'zod';
 import { env } from './env';
 import { PrismaClient } from '@prisma/client';
 import { userRoutes } from './http/controllers/userRoutes';
+import { authRoutes } from './http/controllers/authRoutes';
 
 export const app = fastify();
 const prisma = new PrismaClient();
 
 
 app.register(userRoutes);
+app.register(authRoutes);
 
 
 app.setErrorHandler((error, _request, reply) => {
