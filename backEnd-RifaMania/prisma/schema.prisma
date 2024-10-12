@@ -1,5 +1,3 @@
-// prisma/schema.prisma
-
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
@@ -10,47 +8,48 @@ generator client {
 }
 
 model User {
-  id             Int             @id @default(autoincrement())
-  email          String          @unique
-  password       String
-  cpf            String?
-  phone          String
-  raffles        Raffle[]
+  id            String   @id @default(uuid())
+  email         String   @unique
+  name          String
+  password      String
+  cpf           String?
+  phone         String
+  raffles       Raffle[]
   participations Participation[]
 }
 
 model Raffle {
-  id                    Int             @id @default(autoincrement())
-  name                  String 
-  drawDate              DateTime 
-  ticketPrice           Float           @default(0) 
-  availableNumbersCount Int             @default(0) 
-  totalNumbers          Int 
-  closed                Boolean         @default(false) 
-  creatorId             Int 
-  creator               User            @relation(fields: [creatorId], references: [id])
+  id                    String   @id @default(uuid()) 
+  name                  String
+  drawDate              DateTime
+  ticketPrice           Float    @default(0)
+  availableNumbersCount Int      @default(0)
+  totalNumbers          Int
+  closed                Boolean  @default(false)
+  creatorId             String   
+  creator               User     @relation(fields: [creatorId], references: [id])
   participants          Participation[]
-  uniqueLink            String          @unique 
+  uniqueLink            String   @unique
 }
 
 model Participation {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  raffleId  Int
-  number    Int 
-  status    String 
+  id        String   @id @default(uuid()) 
+  userId    String   
+  raffleId  String   
+  number    Int
+  status    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   user    User     @relation(fields: [userId], references: [id])
   raffle  Raffle   @relation(fields: [raffleId], references: [id])
-  payment Payment? 
+  payment Payment?
 }
 
 model Payment {
-  id              Int      @id @default(autoincrement())
-  participationId Int      @unique 
-  status          String 
+  id              String   @id @default(uuid()) 
+  participationId String   @unique 
+  status          String
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

@@ -8,9 +8,4 @@ export async function appRoutes(app: FastifyInstance) {
     return { message: 'API is running!' };
   });
 
-  // Exemplo de rota que usa Prisma para listar usuários
-  app.get('/users', async (request, reply) => {
-    const users = await prisma.user.findMany();
-    return reply.send(users);
-  });
 }
