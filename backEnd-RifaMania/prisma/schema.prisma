@@ -1,0 +1,58 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id             Int             @id @default(autoincrement())
+  email          String          @unique
+  password       String
+  cpf            String?
+  phone          String
+  raffles        Raffle[]
+  participations Participation[]
+}
+
+model Raffle {
+  id                    Int             @id @default(autoincrement())
+  name                  String 
+  drawDate              DateTime 
+  ticketPrice           Float           @default(0) 
+  availableNumbersCount Int             @default(0) 
+  totalNumbers          Int 
+  closed                Boolean         @default(false) 
+  creatorId             Int 
+  creator               User            @relation(fields: [creatorId], references: [id])
+  participants          Participation[]
+  uniqueLink            String          @unique 
+}
+
+model Participation {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  raffleId  Int
+  number    Int 
+  status    String 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id])
+  raffle  Raffle   @relation(fields: [raffleId], references: [id])
+  payment Payment? 
+}
+
+model Payment {
+  id              Int      @id @default(autoincrement())
+  participationId Int      @unique 
+  status          String 
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  participation Participation @relation(fields: [participationId], references: [id])
+}
