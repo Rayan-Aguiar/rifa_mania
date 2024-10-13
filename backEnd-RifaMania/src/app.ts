@@ -6,6 +6,7 @@ import { userRoutes } from './http/controllers/userRoutes';
 import { authRoutes } from './http/controllers/authRoutes';
 import { raffleRoutes } from './http/controllers/rafflesRoutes';
 import { startCronJob } from './utils/cron';
+import { purchaseTicketRoutes } from './http/controllers/ticketsRoutes';
 
 export const app = fastify();
 const prisma = new PrismaClient();
@@ -14,6 +15,7 @@ const prisma = new PrismaClient();
 app.register(userRoutes);
 app.register(authRoutes);
 app.register(raffleRoutes);
+app.register(purchaseTicketRoutes)
 
 
 //Iniciar Cron Job

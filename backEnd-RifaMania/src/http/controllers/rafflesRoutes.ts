@@ -4,6 +4,7 @@ import { verifyToken } from "../../middlewares/verifyToken";
 import { prisma } from "../../lib/prisma";
 import { generateUniqueSlug } from "../../utils/generateUniqueSlug";
 import { RaffleStatus } from "../../constants/raffleStatus";
+import { listRaffles } from "../../service/raffleService";
 
 interface RaffleCreateRequest {
   name: string;
@@ -103,49 +104,63 @@ export async function raffleRoutes(app: FastifyInstance) {
     ) => {
       const { slug } = request.params as { slug: string };
       try {
-        const { slug } = request.params;
-
         const raffle = await prisma.raffle.findUnique({
           where: { uniqueLink: slug },
         });
-
+  
         if (!raffle) {
           return reply.code(404).send({ message: "Rifa não encontrada." });
         }
+  
 
-        reply.code(200).send(raffle);
+        const soldTickets = await prisma.participation.findMany({
+          where: { raffleId: raffle.id },
+          select: { number: true }, 
+        });
+  
+        const soldNumbers = soldTickets.map(ticket => ticket.number);
+        const availableNumbers = Array.from({ length: raffle.totalNumbers }, (_, i) => i + 1) 
+          .filter(number => !soldNumbers.includes(number)); 
+  
+
+        const availableCount = availableNumbers.length;
+  
+        reply.code(200).send({
+          ...raffle,
+          availableNumbers, 
+          availableCount, 
+          soldTicketsCount: soldNumbers.length, 
+        });
       } catch (error) {
         console.error("Erro ao buscar a rifa:", error);
         reply.code(500).send({ message: "Erro interno do servidor." });
       }
     }
   );
-
+  
+  
+  
+  
   app.get(
     "/raffles",
     { preHandler: verifyToken },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const userId = request.userId;
+  
+        if (!userId) {
+          return reply.code(400).send({ message: "Usuário não autenticado." });
+        }
 
-        const userRaffles = await prisma.raffle.findMany({
-          where: {
-            creatorId: userId,
-          },
-          orderBy: {
-            createdAt: "desc",
-          },
-        });
+        const userRaffles = await listRaffles(userId);
 
-        console.log(`Buscando rifas para o usuário ID: ${userId}`);
-        console.log(`Rifas encontradas:`, userRaffles);
-
+  
         if (userRaffles.length === 0) {
           return reply
             .code(404)
             .send({ message: "Você não possui nenhuma rifa cadastrada." });
         }
-
+  
         reply.send(userRaffles);
       } catch (error) {
         console.error("Erro ao buscar rifas:", error);
