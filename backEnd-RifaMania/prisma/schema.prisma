@@ -8,34 +8,40 @@ generator client {
 }
 
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  name          String
-  password      String
-  cpf           String?
-  phone         String
-  raffles       Raffle[]
+  id             String          @id @default(uuid())
+  email          String          @unique
+  name           String
+  password       String
+  cpf            String?
+  phone          String
+  raffles        Raffle[]
   participations Participation[]
 }
 
 model Raffle {
-  id                    String   @id @default(uuid()) 
+  id                    String          @id @default(uuid())
   name                  String
+  description           String?
+  prizeImage            String?
+  supportPhone          String?
   drawDate              DateTime
-  ticketPrice           Float    @default(0)
-  availableNumbersCount Int      @default(0)
+  status                String
+  drawType              String
+  ticketPrice           Float           @default(0)
+  availableNumbersCount Int             @default(0)
   totalNumbers          Int
-  closed                Boolean  @default(false)
-  creatorId             String   
-  creator               User     @relation(fields: [creatorId], references: [id])
+  closed                Boolean         @default(false)
+  creatorId             String
+  creator               User            @relation(fields: [creatorId], references: [id])
   participants          Participation[]
-  uniqueLink            String   @unique
+  uniqueLink            String          @unique
+  createdAt             DateTime        @default(now())
 }
 
 model Participation {
-  id        String   @id @default(uuid()) 
-  userId    String   
-  raffleId  String   
+  id        String   @id @default(uuid())
+  userId    String
+  raffleId  String
   number    Int
   status    String
   createdAt DateTime @default(now())
@@ -47,8 +53,8 @@ model Participation {
 }
 
 model Payment {
-  id              String   @id @default(uuid()) 
-  participationId String   @unique 
+  id              String   @id @default(uuid())
+  participationId String   @unique
   status          String
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

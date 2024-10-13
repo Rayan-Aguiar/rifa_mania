@@ -1,22 +1,10 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
-import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import { env } from "../../env";
 import { hashPassword } from "../../utils/hashPassword";
 import { verifyToken } from "../../middlewares/verifyToken";
 
-
-interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-
-interface DecodedToken {
-  userId: string;
-}
 
 interface UserUpdateRequest {
   name?: string;
@@ -70,7 +58,11 @@ export async function userRoutes(app: FastifyInstance) {
     }
 
     try {
-      const decoded = await verifyToken(token) as DecodedToken;
+      const decoded = await verifyToken(request, reply);
+      if (!decoded) {
+        return; 
+      }
+    
       const { userId } = decoded;
 
       const userExists = await prisma.user.findUnique({ where: { id: userId } });
@@ -95,7 +87,11 @@ export async function userRoutes(app: FastifyInstance) {
     }
 
     try {
-      const decoded = await verifyToken(token) as DecodedToken;
+      const decoded = await verifyToken(request, reply);
+      if (!decoded) {
+        return; 
+      }
+    
       const { userId } = decoded;
 
       const userData: UserUpdateRequest = request.body;
@@ -134,7 +130,11 @@ export async function userRoutes(app: FastifyInstance) {
     }
   
     try {
-      const decoded = await verifyToken(token) as DecodedToken;
+      const decoded = await verifyToken(request, reply);
+      if (!decoded) {
+        return; 
+      }
+    
       const { userId } = decoded;
   
       const existingUser = await prisma.user.findUnique({
@@ -166,7 +166,11 @@ export async function userRoutes(app: FastifyInstance) {
     }
   
     try {
-      const decoded = await verifyToken(token) as DecodedToken;
+      const decoded = await verifyToken(request, reply);
+      if (!decoded) {
+        return; 
+      }
+    
       const { userId } = decoded;
   
       const { currentPassword, newPassword } = request.body;
