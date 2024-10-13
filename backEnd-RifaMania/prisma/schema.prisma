@@ -50,6 +50,8 @@ model Participation {
 
   raffle  Raffle   @relation(fields: [raffleId], references: [id])
   payment Payment?
+
+  @@unique([raffleId, number]) 
 }
 
 model Payment {

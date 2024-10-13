@@ -5,6 +5,7 @@ import { prisma } from "../../lib/prisma";
 import { generateUniqueSlug } from "../../utils/generateUniqueSlug";
 import { RaffleStatus } from "../../constants/raffleStatus";
 import { listRaffles } from "../../service/raffleService";
+import { drawRaffle } from "../../service/drawRaffle";
 
 interface RaffleCreateRequest {
   name: string;
@@ -48,7 +49,6 @@ const raffleSchema = z.object({
 });
 
 export async function raffleRoutes(app: FastifyInstance) {
-
   app.post<{ Body: RaffleCreateRequest }>(
     "/raffles",
     { preHandler: verifyToken },
@@ -107,29 +107,29 @@ export async function raffleRoutes(app: FastifyInstance) {
         const raffle = await prisma.raffle.findUnique({
           where: { uniqueLink: slug },
         });
-  
+
         if (!raffle) {
           return reply.code(404).send({ message: "Rifa não encontrada." });
         }
-  
 
         const soldTickets = await prisma.participation.findMany({
           where: { raffleId: raffle.id },
-          select: { number: true }, 
+          select: { number: true },
         });
-  
-        const soldNumbers = soldTickets.map(ticket => ticket.number);
-        const availableNumbers = Array.from({ length: raffle.totalNumbers }, (_, i) => i + 1) 
-          .filter(number => !soldNumbers.includes(number)); 
-  
+
+        const soldNumbers = soldTickets.map((ticket) => ticket.number);
+        const availableNumbers = Array.from(
+          { length: raffle.totalNumbers },
+          (_, i) => i + 1
+        ).filter((number) => !soldNumbers.includes(number));
 
         const availableCount = availableNumbers.length;
-  
+
         reply.code(200).send({
           ...raffle,
-          availableNumbers, 
-          availableCount, 
-          soldTicketsCount: soldNumbers.length, 
+          availableNumbers,
+          availableCount,
+          soldTicketsCount: soldNumbers.length,
         });
       } catch (error) {
         console.error("Erro ao buscar a rifa:", error);
@@ -137,30 +137,26 @@ export async function raffleRoutes(app: FastifyInstance) {
       }
     }
   );
-  
-  
-  
-  
+
   app.get(
     "/raffles",
     { preHandler: verifyToken },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const userId = request.userId;
-  
+
         if (!userId) {
           return reply.code(400).send({ message: "Usuário não autenticado." });
         }
 
         const userRaffles = await listRaffles(userId);
 
-  
         if (userRaffles.length === 0) {
           return reply
             .code(404)
             .send({ message: "Você não possui nenhuma rifa cadastrada." });
         }
-  
+
         reply.send(userRaffles);
       } catch (error) {
         console.error("Erro ao buscar rifas:", error);
@@ -191,13 +187,16 @@ export async function raffleRoutes(app: FastifyInstance) {
             .send({ message: "Você não tem permissão para editar essa rifa!" });
         }
 
-        if(raffle.status !== 'Online'){
+        if (raffle.status !== "Online") {
           return reply
             .code(400)
-            .send({ message: 'Essa rifa não pode mais ser editada.'})
+            .send({ message: "Essa rifa não pode mais ser editada." });
         }
 
-        const uniqueLink = raffleData.name !== raffle.name ? await generateUniqueSlug(raffleData.name) : raffle.uniqueLink
+        const uniqueLink =
+          raffleData.name !== raffle.name
+            ? await generateUniqueSlug(raffleData.name)
+            : raffle.uniqueLink;
 
         const updatedRaffle = await prisma.raffle.update({
           where: { id },
@@ -212,6 +211,26 @@ export async function raffleRoutes(app: FastifyInstance) {
           reply.code(400).send({ message: error.errors });
         }
         reply.code(500).send({ message: "Erro ao atualizar a rifa" });
+      }
+    }
+  );
+
+  app.post(
+    "/raffles/:id/draw",
+    { preHandler: [verifyToken] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { id } = request.params as { id: string };
+
+      try {
+        const result = await drawRaffle(id);
+        reply
+          .code(200)
+          .send({ message: "Sorteio realizado com sucesso!", result });
+      } catch (error) {
+        if (error instanceof Error) {
+          return reply.code(400).send({ message: error.message });
+        }
+        reply.code(500).send({ message: "Erro ao realizar o sorteio." });
       }
     }
   );
