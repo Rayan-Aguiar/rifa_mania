@@ -2,13 +2,15 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, LoaderCircle } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import ImgCard from "@/assets/img-card.png"
+import { API } from "@/configs/api";
+import axios from "axios";
 
 
 const signupSchema = z.object({
@@ -26,6 +28,9 @@ type SignUpFormInputs = z.infer<typeof signupSchema>;
 
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [ isLoading, setIsLoading ] = useState(false);
+  const navigate = useNavigate()
 
   const {
     register,
@@ -35,8 +40,28 @@ export default function SignUp() {
     resolver: zodResolver(signupSchema),
   });
 
-  const onSubmit = (data: SignUpFormInputs) => {
-    console.log(data);
+  const onSubmit = async (data: SignUpFormInputs) => {
+    setIsLoading(true);
+    try {
+      setApiError(null);
+      const response = await API.post('/users', data);
+      if (response.status === 201) {
+        navigate('/signin');
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response && error.response.data) {
+          setApiError(error.response.data.message || "Ocorreu um erro no cadastro");
+        } else {
+          setApiError("Ocorreu um erro inesperado");
+        }
+      } else {
+        setApiError("Ocorreu um erro inesperado");
+      }
+      console.error("Ocorreu um erro ao cadastrar:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -112,12 +137,16 @@ export default function SignUp() {
                 <Label htmlFor="showPassword" className="text-raffle-highlight">Mostrar senha</Label>
 
             </div>
-
+            {apiError && <p className="mb-4 text-xs text-whiteCustom bg-red-500 w-fit p-1 rounded">{apiError}</p>}
             <Button
               type="submit"
               className="w-full bg-raffle-highlight text-blackCustom hover:bg-raffle-highlight/90"
-            >
-              Continuar
+            > {isLoading ? (
+              <div className="flex cursor-not-allowed items-center justify-center">
+                <LoaderCircle className="animate-spin" />
+              </div>
+            ) : "Continuar"}
+              
             </Button>
           </form>
         </div>

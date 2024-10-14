@@ -39,7 +39,7 @@ export default function SignIn() {
       setIsLoading(true)
       try {
         const response = await API.post('/auth/login', data)
-        const authToken = response.data.authentication_token
+        const authToken = response.data.token
         setToken(authToken)
         navigate('/home')
       } catch (error){
