@@ -1,8 +1,19 @@
 import LogoImg from "@/assets/Rifamania-logo.png"
+import { removeToken } from "@/configs/auth"
 import { Bell, LogOut, Ticket, User2Icon, Wallet } from "lucide-react"
-import { NavLink, Outlet } from "react-router-dom"
+import { NavLink, Outlet, useNavigate } from "react-router-dom"
 
 export default function Layout() {
+
+  const navigate = useNavigate()
+
+
+  const handleLogout = (e: React.MouseEvent<HTMLLIElement>) =>{
+    e.preventDefault()
+    removeToken()
+    navigate("/")
+  }
+
   return (
     <div className="w-full min-h-svh bg-whiteCustom">
       <header className="h-fit bg-white/30 p-6">
@@ -42,7 +53,7 @@ export default function Layout() {
               }>
               <User2Icon /> Minha conta
             </NavLink>
-            <li className="flex gap-1 items-center p-2 cursor-pointer text-raffle-highlight">
+            <li onClick={handleLogout} className="flex gap-1 items-center p-2 cursor-pointer text-raffle-highlight">
               <LogOut /> Sair
             </li>
           </ul>

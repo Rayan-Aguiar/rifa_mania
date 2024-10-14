@@ -5,9 +5,13 @@ import { Label } from "@/components/ui/label"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { z } from "zod"
 import ImgCard from "@/assets/img-card.png"
+import { LoaderCircle } from "lucide-react"
+import { API } from "@/configs/api"
+import { setToken } from "@/configs/auth"
+import { AxiosError } from "axios"
 
 
 const loginSchema = z.object({
@@ -19,6 +23,9 @@ type LoginFormInputs = z.infer<typeof loginSchema>
 
 export default function SignIn() {
     const [ showPassword, setShowPassword ] = useState(false)
+    const [ isLoading, setIsLoading ] = useState(false)
+    const [loginError, setLoginError] = useState<string | null>(null)
+    const navigate = useNavigate()
 
     const {
       register, 
@@ -28,8 +35,28 @@ export default function SignIn() {
       resolver: zodResolver(loginSchema)
     })
 
-    const onSubmit = (data: LoginFormInputs) => {
-      console.log(data)
+    const onSubmit = async (data: LoginFormInputs) => {
+      setIsLoading(true)
+      try {
+        const response = await API.post('/auth/login', data)
+        const authToken = response.data.authentication_token
+        setToken(authToken)
+        navigate('/home')
+      } catch (error){
+        if (error instanceof AxiosError) {
+          if (error.response && error.response.status === 401) {
+            setLoginError("Email ou senha incorretos.")
+          } else {
+            setLoginError("Ocorreu um erro inesperado. Tente novamente.")
+          }
+        } else {
+          setLoginError("Ocorreu um erro inesperado. Tente novamente.")
+        }
+        console.error("Ocorreu um error:" , error)
+      }
+      finally {
+        setIsLoading(false)
+      }
     }
 
   return (
@@ -70,6 +97,12 @@ export default function SignIn() {
             {errors.password &&(
               <p className="my-2 text-xs text-whiteCustom bg-red-500 w-fit p-1 rounded">{errors.password.message}</p>
             )}
+
+            {loginError &&(
+              <p className="mt-1 text-xs text-whiteCustom bg-red-500 w-fit p-1 rounded">{loginError}</p>
+            )}
+
+
             <div className="my-4 flex items-center gap-2">
               <Checkbox
                 id="showPassword"
@@ -84,8 +117,11 @@ export default function SignIn() {
             <Button
               type="submit"
               className="w-full bg-raffle-highlight text-blackCustom hover:bg-raffle-highlight/90"
-            >
-              Entrar
+            >{isLoading ?(
+              <div className="flex cursor-not-allowed items-center justify-center">
+                <LoaderCircle className="animate-spin" />
+              </div>
+            ) : "Entrar"}              
             </Button>
           </form>
           <div className="flex justify-start w-full mt-4">

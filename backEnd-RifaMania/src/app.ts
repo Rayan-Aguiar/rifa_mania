@@ -1,4 +1,5 @@
 import fastify from 'fastify';
+import cors from '@fastify/cors'
 import { ZodError } from 'zod';
 import { env } from './env';
 import { PrismaClient } from '@prisma/client';
@@ -11,6 +12,11 @@ import { purchaseTicketRoutes } from './http/controllers/ticketsRoutes';
 export const app = fastify();
 const prisma = new PrismaClient();
 
+
+app.register(cors, {
+  origin: '*',
+  methods: 'GET, POST, PUT, DELETE',
+})
 
 app.register(userRoutes);
 app.register(authRoutes);
