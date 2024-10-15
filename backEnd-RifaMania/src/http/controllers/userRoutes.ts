@@ -54,6 +54,7 @@ export async function userRoutes(app: FastifyInstance) {
 
   app.delete("/users",{preHandler: [verifyToken]} ,async (request: FastifyRequest, reply: FastifyReply) => {
 
+
     try {
       const decoded = await verifyToken(request, reply);
       if (!decoded) {
@@ -172,7 +173,7 @@ export async function userRoutes(app: FastifyInstance) {
         );
 
         if (!isPasswordValid) {
-          return reply.code(401).send({ message: "Senha atual inválida" });
+          return reply.code(400).send({ message: "Senha atual inválida" });
         }
 
         const hashedNewPassword = await hashPassword(newPassword);
