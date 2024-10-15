@@ -17,5 +17,5 @@ export const removeToken = () => {
 }
 
 export const getToken = ():string | null => {
-    return localStorage.getItem("access_token");
+    return localStorage.getItem("token");
 }

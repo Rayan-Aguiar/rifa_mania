@@ -7,6 +7,7 @@ import Layout from "@/common/layout"
 import Home from "@/pages/home"
 import PaymentPage from "@/pages/Payment"
 import MyAccount from "@/pages/myAccount"
+import { PrivateRoute } from "./privaderouter"
 
 export default function Router() {
     return(
@@ -17,10 +18,9 @@ export default function Router() {
                 <Route path="/signup" element={<SignUp />} />
 
                 <Route element={<Layout />}>
-                    <Route path="/home" element={<Home />} />
-                    <Route path="/metodo-pagamento" element={<PaymentPage />} />
-                    <Route path="/perfil" element={<MyAccount />} />
-                
+                    <Route path="/home" element={<PrivateRoute element={<Home />}/>}/>
+                    <Route path="/metodo-pagamento" element={<PrivateRoute element={<PaymentPage />} />} />
+                    <Route path="/perfil" element={<PrivateRoute element={<MyAccount />}/>} />                
                 </Route>
                 
             </Routes>
