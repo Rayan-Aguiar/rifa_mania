@@ -1,9 +1,14 @@
+import { UserDataProps } from "@/@types/UserData"
 import LogoImg from "@/assets/Rifamania-logo.png"
+import { API } from "@/configs/api"
 import { removeToken } from "@/configs/auth"
 import { Bell, LogOut, Ticket, User2Icon, Wallet } from "lucide-react"
+import { useEffect, useState } from "react"
 import { NavLink, Outlet, useNavigate } from "react-router-dom"
 
 export default function Layout() {
+
+  const [ userData, setUserData ] = useState<UserDataProps | null>(null)
 
   const navigate = useNavigate()
 
@@ -11,7 +16,36 @@ export default function Layout() {
   const handleLogout = (e: React.MouseEvent<HTMLLIElement>) =>{
     e.preventDefault()
     removeToken()
+    localStorage.removeItem('userData')
     navigate("/")
+  }
+
+  useEffect(() =>{
+    const fetchUserData = async () =>{
+      const token = localStorage.getItem('token')
+      if(!token){
+        navigate('/signin')
+        return
+      }
+
+      try {
+        const response = await API.get('/users',{
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        setUserData(response.data)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    fetchUserData()
+  },[navigate])
+
+  const getInitialsName = (name?: string) =>{
+    if(!name) return ''
+    const [ firstLetter, secondLetter ] = name.trim().slice(0, 2).split('')
+    return `${firstLetter?.toUpperCase()}${secondLetter?.toLowerCase()}`
   }
 
   return (
@@ -25,10 +59,10 @@ export default function Layout() {
       <main className="flex container mx-auto py-6">
         <aside className="h-fit w-60 bg-raffle-main rounded-xl p-4 flex flex-col">
           <div className="flex items-center gap-3">
-            <div className="rounded-full h-12 w-12 bg-whiteCustom/50 flex justify-center items-center text-whiteCustom font-bold">Ra</div>
+            <div className="rounded-full h-12 w-12 bg-whiteCustom/50 flex justify-center items-center text-whiteCustom font-bold">{getInitialsName(userData?.name)}</div>
             <div>
-              <p className="text-sm text-whiteCustom font-bold">Rayan Siqueira</p>
-              <p className="text-xs text-whiteCustom truncate">rayansiqueira@gmail.com</p>
+              <p className="text-sm text-whiteCustom font-bold">{userData?.name || 'Usuário'}</p>
+              <p className="text-xs text-whiteCustom truncate">{userData?.email}</p>
             </div>
           </div>
           <ul className="mt-4 text-whiteCustom flex flex-col gap-2">

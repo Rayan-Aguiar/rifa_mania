@@ -1,19 +1,57 @@
+import { UserDataProps } from "@/@types/UserData"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { API } from "@/configs/api"
 import { Bolt, DollarSign, Eye, EyeOff, Ticket, TimerReset } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+
+
 
 export default function Home() {
     const [ showBalace, setShowBalace ] = useState(false)
+    const [ userData, setUserData ] = useState<UserDataProps | null>(null)
+    const navigate = useNavigate()
 
     const toggleBalaceVisibility = () => {
         setShowBalace(!showBalace)
     }
 
+    useEffect(() =>{
+      const fetchUserData = async () => {
+        const token = localStorage.getItem('token')
+  
+        if(!token){
+          navigate('/signin')
+          return;
+        }
+        
+        const cachedUserData = localStorage.getItem('userData')
+        if(cachedUserData){
+          setUserData(JSON.parse(cachedUserData))
+          return;
+        }
+  
+        try{
+          const response = await API.get("/users", {
+            headers: {
+              Authorization: `Bearer ${token}`, 
+            },
+          });
+          setUserData(response.data);
+          localStorage.setItem('userData', JSON.stringify(response.data))
+        }catch(error){
+          console.error(error)
+        }
+
+      }
+      fetchUserData()
+    },[navigate])
+
 
   return (
     <div className="flex flex-col gap-4 text-blackCustom">
-      <h1 className="text-xl font-bold">👋 Olá, Rayan Siqueira</h1>
+      <h1 className="text-xl font-bold">👋 Olá, {userData?.name}</h1>
       <div className="flex h-32 w-full items-center rounded-xl bg-white/40 p-4 shadow-sm">
         <div className="flex">
           <div>
