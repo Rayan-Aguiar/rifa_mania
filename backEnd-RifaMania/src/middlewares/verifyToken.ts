@@ -16,6 +16,7 @@ export async function verifyToken(
   try {
     const decoded = jwt.verify(token, env.JWT_SECRET) as { userId: string };
     request.userId = decoded.userId;
+    return decoded
   } catch (error) {
     reply.code(401).send({ message: "Token inválido" });
     return undefined;

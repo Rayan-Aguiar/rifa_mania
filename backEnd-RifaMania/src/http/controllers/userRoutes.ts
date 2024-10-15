@@ -5,11 +5,15 @@ import bcrypt from "bcryptjs";
 import { hashPassword } from "../../utils/hashPassword";
 import { verifyToken } from "../../middlewares/verifyToken";
 
-
 interface UserUpdateRequest {
   name?: string;
   phone?: string;
-  cpf?: string; 
+  cpf?: string;
+}
+
+interface PasswordChangeBody {
+  currentPassword: string;
+  newPassword: string;
 }
 
 const userSchema = z.object({
@@ -20,14 +24,12 @@ const userSchema = z.object({
   name: z.string().min(3),
 });
 
-
 export async function userRoutes(app: FastifyInstance) {
-  
   app.post("/users", async (request, reply) => {
     try {
       const userData = userSchema.parse(request.body);
       const hashedPassword = await hashPassword(userData.password);
-      
+
       const user = await prisma.user.create({
         data: {
           name: userData.name,
@@ -50,155 +52,141 @@ export async function userRoutes(app: FastifyInstance) {
     }
   });
 
-  app.delete('/users', async (request: FastifyRequest, reply: FastifyReply) => {
-    const token = request.headers['authorization']?.split(' ')[1];
-
-    if (!token) {
-      return reply.code(401).send({ message: 'Token não fornecido' });
-    }
+  app.delete("/users",{preHandler: [verifyToken]} ,async (request: FastifyRequest, reply: FastifyReply) => {
 
     try {
       const decoded = await verifyToken(request, reply);
       if (!decoded) {
-        return; 
+        return;
       }
-    
+
       const { userId } = decoded;
 
-      const userExists = await prisma.user.findUnique({ where: { id: userId } });
+      const userExists = await prisma.user.findUnique({
+        where: { id: userId },
+      });
       if (!userExists) {
-        return reply.code(404).send({ message: 'Usuário não encontrado' });
+        return reply.code(404).send({ message: "Usuário não encontrado" });
       }
 
       await prisma.user.delete({ where: { id: userId } });
-      reply.code(204).send({ message: 'Usuário deletado com sucesso' });
+      reply.code(204).send({ message: "Usuário deletado com sucesso" });
     } catch (error) {
-      console.error('Erro ao excluir usuário:', error);
-      reply.code(500).send({ message: 'Internal server error' });
+      console.error("Erro ao excluir usuário:", error);
+      reply.code(500).send({ message: "Internal server error" });
     }
   });
 
+  app.put<{ Body: UserUpdateRequest }>(
+    "/users",
+    { preHandler: [verifyToken] },
+    async (
+      request: FastifyRequest<{ Body: UserUpdateRequest }>,
+      reply: FastifyReply
+    ) => {
+      try {
+        const { userId } = request;
+        const userData: UserUpdateRequest = request.body;
 
-  app.put('/users', async (request: FastifyRequest<{ Body: UserUpdateRequest }>, reply: FastifyReply) => {
-    const token = request.headers['authorization']?.split(' ')[1];
+        const existingUser = await prisma.user.findUnique({
+          where: { id: userId },
+        });
 
-    if (!token) {
-      return reply.code(401).send({ message: 'Token não fornecido' });
+        if (!existingUser) {
+          return reply.code(404).send({ message: "Usuário não encontrado" });
+        }
+
+        if (userData.cpf && existingUser.cpf) {
+          return reply.code(400).send({
+            message: "O CPF não pode ser editado uma vez que foi cadastrado.",
+          });
+        }
+
+        if (userData.cpf === undefined) {
+          delete userData.cpf;
+        }
+
+        const updatedUser = await prisma.user.update({
+          where: { id: userId },
+          data: userData,
+        });
+
+        reply.send(updatedUser);
+      } catch (error) {
+        console.error("Erro ao editar usuário:", error);
+        reply.code(500).send({ message: "Internal server error" });
+      }
     }
+  );
 
-    try {
-      const decoded = await verifyToken(request, reply);
-      if (!decoded) {
-        return; 
+  app.get(
+    "/users",
+    { preHandler: [verifyToken] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { userId } = request;
+      try {
+        const existingUser = await prisma.user.findUnique({
+          where: { id: userId },
+          select: {
+            email: true,
+            name: true,
+            phone: true,
+            cpf: true,
+          },
+        });
+
+        if (!existingUser) {
+          return reply.code(404).send({ message: "Usuário não encontrado" });
+        }
+
+        reply.send(existingUser);
+      } catch (error) {
+        console.error("Erro ao obter dados do usuário:", error);
+        reply.code(500).send({ message: "Internal server error" });
       }
-    
-      const { userId } = decoded;
-
-      const userData: UserUpdateRequest = request.body;
-      const existingUser = await prisma.user.findUnique({ where: { id: userId } });
-
-      if(!existingUser) {
-        return reply.code(404).send({ message: 'Usuário não encontrado' })
-      }
-
-      if (userData.cpf && existingUser.cpf) {
-        return reply.code(400).send({ message: 'O CPF não pode ser editado uma vez que foi cadastrado.' });
-      }
-
-      if (userData.cpf === undefined) {
-        delete userData.cpf;
-      }
-
-
-      const updatedUser = await prisma.user.update({
-        where: { id: userId },
-        data: userData,
-      });
-
-      reply.send(updatedUser);
-    } catch (error) {
-      console.error('Erro ao editar usuário:', error);
-      reply.code(500).send({ message: 'Internal server error' });
     }
-  });
+  );
 
-  app.get('/users', async (request: FastifyRequest, reply: FastifyReply) => {
-    const token = request.headers['authorization']?.split(' ')[1];
-  
-    if (!token) {
-      return reply.code(401).send({ message: 'Token não fornecido' });
-    }
-  
-    try {
-      const decoded = await verifyToken(request, reply);
-      if (!decoded) {
-        return; 
-      }
-    
-      const { userId } = decoded;
-  
-      const existingUser = await prisma.user.findUnique({
-        where: { id: userId },
-        select: {
-          email: true,
-          name: true,
-          phone: true,
-          cpf: true,
-        },
-      });
-  
-      if (!existingUser) {
-        return reply.code(404).send({ message: 'Usuário não encontrado' });
-      }
-  
-      reply.send(existingUser);
-    } catch (error) {
-      console.error('Erro ao obter dados do usuário:', error);
-      reply.code(500).send({ message: 'Internal server error' });
-    }
-  });
+  app.put<{ Body: PasswordChangeBody }>(
+    "/users/password",
+    { preHandler: [verifyToken] },
+    async (
+      request: FastifyRequest<{ Body: PasswordChangeBody }>,
+      reply: FastifyReply
+    ) => {
+      try {
+        const { userId } = request;
+        const { currentPassword, newPassword } = request.body;
 
-  app.put('/users/password', async (request: FastifyRequest<{ Body: { currentPassword: string; newPassword: string } }>, reply: FastifyReply) => {
-    const token = request.headers['authorization']?.split(' ')[1];
-  
-    if (!token) {
-      return reply.code(401).send({ message: 'Token não fornecido' });
-    }
-  
-    try {
-      const decoded = await verifyToken(request, reply);
-      if (!decoded) {
-        return; 
-      }
-    
-      const { userId } = decoded;
-  
-      const { currentPassword, newPassword } = request.body;
-  
-      const existingUser = await prisma.user.findUnique({ where: { id: userId } });
-  
-      if (!existingUser) {
-        return reply.code(404).send({ message: 'Usuário não encontrado' });
-      }
-  
-      const isPasswordValid = await bcrypt.compare(currentPassword, existingUser.password);
-      if (!isPasswordValid) {
-        return reply.code(401).send({ message: 'Senha atual inválida' });
-      }
-  
- 
-      const hashedNewPassword = await hashPassword(newPassword);
-  
+        const existingUser = await prisma.user.findUnique({
+          where: { id: userId },
+        });
 
-      await prisma.user.update({
-        where: { id: userId },
-        data: { password: hashedNewPassword },
-      });
-  
-      reply.code(204).send(); 
-    } catch (error) {
-      console.error('Erro ao editar senha do usuário:', error);
-      reply.code(500).send({ message: 'Internal server error' });
+        if (!existingUser) {
+          return reply.code(404).send({ message: "Usuário não encontrado" });
+        }
+
+        const isPasswordValid = await bcrypt.compare(
+          currentPassword,
+          existingUser.password
+        );
+
+        if (!isPasswordValid) {
+          return reply.code(401).send({ message: "Senha atual inválida" });
+        }
+
+        const hashedNewPassword = await hashPassword(newPassword);
+
+        await prisma.user.update({
+          where: { id: userId },
+          data: { password: hashedNewPassword },
+        });
+
+        reply.code(204).send();
+      } catch (error) {
+        console.error("Erro ao editar senha do usuário:", error);
+        reply.code(500).send({ message: "Internal server error" });
+      }
     }
-  });
+  );
 }
