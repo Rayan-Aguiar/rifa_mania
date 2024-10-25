@@ -6,6 +6,7 @@ import { generateUniqueSlug } from "../../utils/generateUniqueSlug";
 import { RaffleStatus } from "../../constants/raffleStatus";
 import { listRaffles } from "../../service/raffleService";
 import { drawRaffle } from "../../service/drawRaffle";
+import { ALLOWED_TOTAL_NUMBERS } from "../../rules/raffleRules";
 
 interface RaffleCreateRequest {
   name: string;
@@ -60,7 +61,15 @@ export async function raffleRoutes(app: FastifyInstance) {
         const raffleData = raffleSchema.parse({
           ...request.body,
           drawDate: new Date(request.body.drawDate),
+          availableNumbersCount: request.body.totalNumbers,
+          drawType: request.body.drawType || "automatico"
         });
+
+        if(raffleData.drawDate < new Date()){
+          return reply
+            .code(400)
+            .send({ message : "A data do sorteio não pode ser anterior à data atual."})
+        }
 
         if (!request.userId) {
           return reply
@@ -76,7 +85,7 @@ export async function raffleRoutes(app: FastifyInstance) {
             drawDate: raffleData.drawDate,
             ticketPrice: raffleData.ticketPrice,
             totalNumbers: raffleData.totalNumbers,
-            availableNumbersCount: raffleData.totalNumbers,
+            availableNumbersCount: raffleData.availableNumbersCount,
             drawType: raffleData.drawType,
             status: RaffleStatus.ONLINE,
             closed: false,
@@ -234,4 +243,9 @@ export async function raffleRoutes(app: FastifyInstance) {
       }
     }
   );
+
+  app.get('/raffles/ticket-quantities', { preHandler: [verifyToken]}, async (_request: FastifyRequest, reply: FastifyReply) =>{
+    const quantities = ALLOWED_TOTAL_NUMBERS
+    reply.send(quantities)
+  })
 }
