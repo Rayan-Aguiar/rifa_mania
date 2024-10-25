@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { API } from "@/configs/api"
 import { Bolt, DollarSign, Eye, EyeOff, Ticket, TimerReset } from "lucide-react"
 import { useEffect, useState } from "react"
+import { Link } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
 
 
@@ -73,9 +74,11 @@ export default function Home() {
         </div>
       </div>
       <div>
-        <Button className="w-full rounded-xl bg-raffle-main hover:bg-raffle-main/90">
-          Criar Campanha
-        </Button>
+        <Link to="/nova-campanha">
+          <Button className="w-full rounded-xl bg-raffle-main hover:bg-raffle-main/90">
+            Criar Campanha
+          </Button>
+        </Link>
       </div>
       <h2 className="text-xl font-bold">Suas Campanhas</h2>
         {/* TODO: transform div in component */}

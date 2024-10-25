@@ -8,6 +8,7 @@ import Home from "@/pages/home"
 import PaymentPage from "@/pages/Payment"
 import MyAccount from "@/pages/myAccount"
 import { PrivateRoute } from "./privaderouter"
+import NewCampaign from "@/pages/newCampaign"
 
 export default function Router() {
     return(
@@ -20,7 +21,8 @@ export default function Router() {
                 <Route element={<Layout />}>
                     <Route path="/home" element={<PrivateRoute element={<Home />}/>}/>
                     <Route path="/metodo-pagamento" element={<PrivateRoute element={<PaymentPage />} />} />
-                    <Route path="/perfil" element={<PrivateRoute element={<MyAccount />}/>} />                
+                    <Route path="/perfil" element={<PrivateRoute element={<MyAccount />}/>} />
+                    <Route path="/nova-campanha" element={<PrivateRoute element={<NewCampaign />}/>} />                
                 </Route>
                 
             </Routes>
