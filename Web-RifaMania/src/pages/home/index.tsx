@@ -1,54 +1,52 @@
 import { UserDataProps } from "@/@types/UserData"
-import { Badge } from "@/components/ui/badge"
+import { CardRaffles } from "@/components/CardRaffles"
 import { Button } from "@/components/ui/button"
 import { API } from "@/configs/api"
-import { Bolt, DollarSign, Eye, EyeOff, Ticket, TimerReset } from "lucide-react"
+import { useRaffles } from "@/hooks/useRaffles"
+import { DollarSign, Eye, EyeOff, LoaderCircle } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
 
-
-
 export default function Home() {
-    const [ showBalace, setShowBalace ] = useState(false)
-    const [ userData, setUserData ] = useState<UserDataProps | null>(null)
-    const navigate = useNavigate()
+  const [showBalace, setShowBalace] = useState(false)
+  const [userData, setUserData] = useState<UserDataProps | null>(null)
+  const { raffles, isLoading, error } = useRaffles()
+  const navigate = useNavigate()
 
-    const toggleBalaceVisibility = () => {
-        setShowBalace(!showBalace)
-    }
+  const toggleBalaceVisibility = () => {
+    setShowBalace(!showBalace)
+  }
 
-    useEffect(() =>{
-      const fetchUserData = async () => {
-        const token = localStorage.getItem('token')
-  
-        if(!token){
-          navigate('/signin')
-          return;
-        }
-        
-        const cachedUserData = localStorage.getItem('userData')
-        if(cachedUserData){
-          setUserData(JSON.parse(cachedUserData))
-          return;
-        }
-  
-        try{
-          const response = await API.get("/users", {
-            headers: {
-              Authorization: `Bearer ${token}`, 
-            },
-          });
-          setUserData(response.data);
-          localStorage.setItem('userData', JSON.stringify(response.data))
-        }catch(error){
-          console.error(error)
-        }
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem("token")
 
+      if (!token) {
+        navigate("/signin")
+        return
       }
-      fetchUserData()
-    },[navigate])
 
+      const cachedUserData = localStorage.getItem("userData")
+      if (cachedUserData) {
+        setUserData(JSON.parse(cachedUserData))
+        return
+      }
+
+      try {
+        const response = await API.get("/users", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        setUserData(response.data)
+        localStorage.setItem("userData", JSON.stringify(response.data))
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    fetchUserData()
+  }, [navigate])
 
   return (
     <div className="flex flex-col gap-4 text-blackCustom">
@@ -65,9 +63,15 @@ export default function Home() {
                 {showBalace ? "R$ 1000,00" : "*********"}
               </span>
               {showBalace ? (
-                    <EyeOff className="cursor-pointer" onClick={toggleBalaceVisibility}/>
-              ): (
-                    <Eye className="cursor-pointer" onClick={toggleBalaceVisibility}/>
+                <EyeOff
+                  className="cursor-pointer"
+                  onClick={toggleBalaceVisibility}
+                />
+              ) : (
+                <Eye
+                  className="cursor-pointer"
+                  onClick={toggleBalaceVisibility}
+                />
               )}
             </div>
           </div>
@@ -81,35 +85,24 @@ export default function Home() {
         </Link>
       </div>
       <h2 className="text-xl font-bold">Suas Campanhas</h2>
-        {/* TODO: transform div in component */}
-      <div className="flex h-fit w-full flex-col gap-2 rounded-xl bg-white/40 p-4 shadow-sm"> 
-        <div className="flex w-full items-center justify-between">
-          <div className="h-24 w-36 overflow-hidden rounded-lg">
-            <img
-              src="https://www.mokeka.com.br/blog/wp-content/uploads/2023/07/campanha-publicitaria.jpg"
-              alt="campanha"
-              className="h-full w-full object-cover transition-transform duration-300 hover:scale-110"
-            />
-          </div>
-          <Badge className="rounded-full border-rose-500 bg-rose-500/30 p-2 text-rose-500">
-            Pendente
-          </Badge>
+
+      {isLoading ? (
+        <div className="flex h-fit w-full items-center justify-center">
+          <LoaderCircle className="animate-spin" />
         </div>
-        <div>
-          <p className="text-lg font-semibold">Nome Campanha</p>
-          <p className="flex items-center gap-1 text-sm">
-            <TimerReset className="w-4" /> Duração da campanha: 10 dias
-          </p>
-        </div>
-        <div className="flex w-full gap-2">
-          <Button className="flex w-full items-center gap-1 rounded-xl bg-raffle-main hover:bg-raffle-main/90">
-            Publicar Rifa <Ticket />
-          </Button>
-          <Button className="flex w-full items-center gap-1 rounded-xl bg-raffle-highlight text-raffle-main hover:bg-raffle-highlight/90">
-            Gerenciar <Bolt />
-          </Button>
-        </div>
-      </div>
+      ) : error ? (
+        <p>Ocorreu um erro ao carregar as Rifas.</p>
+      ) : (
+        raffles.map((raffle) => (
+          <CardRaffles
+            key={raffle.id}
+            name={raffle.name}
+            drawDate={raffle.drawDate}
+            img={raffle.img}
+            status={raffle.status}
+          />
+        ))
+      )}
     </div>
   )
 }
