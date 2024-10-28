@@ -3,25 +3,18 @@ import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { RaffleProps } from "@/@types/Raffle";
 import { calculateRemainingDays } from "@/utils/dateUtils";
-import imgDefault from "@/assets/sorteio.webp"
+import imgDefault from "@/assets/sorteio.webp";
+
 
 const statusColors: Record<string, string> = {
-    ONLINE: "bg-raffle-main",
-    CANCELLED: "bg-red-500 ",
-    EXPIRED: "bg-gray-500 ",
-    SORTING: "bg-yellow-500 ",
-    CONCLUDED: "bg-blue-500 ",
+    Online: "bg-raffle-main hover:bg-raffle-main/90 shadow-none",      
+    Cancelado: "bg-red-500 shadow-none",       
+    Expirado: "bg-gray-500 shadow-none",      
+    Sortear: "bg-raffle-highlight hover:bg-raffle-highlight/90 shadow-none text-raffle-main",      
+    Concluído: "bg-blue-500 shadow-none",      
 };
 
-const statusLabels: Record<string, string> = {
-    ONLINE: "Online",
-    CANCELLED: "Cancelado",
-    EXPIRED: "Expirado",
-    SORTING: "Sortear",
-    CONCLUDED: "Concluído",
-};
-
-const defaultImage = imgDefault
+const defaultImage = imgDefault;
 
 export const CardRaffles = ({
     name,
@@ -29,9 +22,7 @@ export const CardRaffles = ({
     status,
     drawDate,
 }: Omit<RaffleProps, 'id'>) => { 
-    const normalizedStatus = status.toUpperCase(); 
-    const badgeClass = statusColors[normalizedStatus] || "";
-    const statusLabel = statusLabels[normalizedStatus] || "Desconhecido";
+    const badgeClass = statusColors[status] || "bg-gray-400"; 
     const remainingDays = calculateRemainingDays(drawDate);
 
     return (
@@ -44,8 +35,8 @@ export const CardRaffles = ({
                         className="h-full w-full object-cover transition-transform duration-300 hover:scale-110"
                     />
                 </div>
-                <Badge className={`rounded-full border min-w-20 flex justify-center items-center uppercase hover:${badgeClass} ${badgeClass} p-2`}>
-                    {statusLabel}
+                <Badge className={`rounded-full border min-w-20 flex justify-center items-center uppercase font-bold ${badgeClass} p-2`}>
+                    {status} 
                 </Badge>
             </div>
             <div>
