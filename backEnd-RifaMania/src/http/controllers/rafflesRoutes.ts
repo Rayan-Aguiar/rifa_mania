@@ -87,6 +87,7 @@ export async function raffleRoutes(app: FastifyInstance) {
             totalNumbers: raffleData.totalNumbers,
             availableNumbersCount: raffleData.availableNumbersCount,
             drawType: raffleData.drawType,
+            supportPhone: raffleData.supportPhone,
             status: RaffleStatus.ONLINE,
             closed: false,
             creatorId: request.userId,
@@ -106,7 +107,7 @@ export async function raffleRoutes(app: FastifyInstance) {
   );
 
   app.get(
-    "/raffles/:slug",
+    "/raffles/slug/:slug",
     async (
       request: FastifyRequest<{ Params: { slug: string } }>,
       reply: FastifyReply
@@ -173,6 +174,34 @@ export async function raffleRoutes(app: FastifyInstance) {
       }
     }
   );
+
+  app.get (
+    "/raffles/:id",
+    {preHandler: verifyToken},
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { id } = request.params as { id: string };
+
+      try {
+        const raffle = await prisma.raffle.findUnique({
+          where: { id },
+          select: {
+            name: true,
+            description: true,
+            prizeImage: true,
+            supportPhone: true,
+            drawDate: true,
+            ticketPrice: true,
+          }
+        })
+        if (!raffle){
+          return reply.code(404).send({ message: "Rifa não encontrada." });
+        }
+        reply.code(200).send(raffle)
+      } catch (error){
+        return reply.code(500).send({message: "Internal server error"})
+      }
+    }
+  )
 
   app.put(
     "/raffles/:id",
