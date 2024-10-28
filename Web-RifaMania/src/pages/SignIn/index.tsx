@@ -116,6 +116,7 @@ export default function SignIn() {
 
             <Button
               type="submit"
+              disabled={isLoading}
               className="w-full bg-raffle-highlight text-blackCustom hover:bg-raffle-highlight/90"
             >{isLoading ?(
               <div className="flex cursor-not-allowed items-center justify-center">

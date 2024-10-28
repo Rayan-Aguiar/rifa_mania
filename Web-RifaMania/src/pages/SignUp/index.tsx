@@ -140,6 +140,7 @@ export default function SignUp() {
             {apiError && <p className="mb-4 text-xs text-whiteCustom bg-red-500 w-fit p-1 rounded">{apiError}</p>}
             <Button
               type="submit"
+              disabled={isLoading}
               className="w-full bg-raffle-highlight text-blackCustom hover:bg-raffle-highlight/90"
             > {isLoading ? (
               <div className="flex cursor-not-allowed items-center justify-center">
