@@ -191,6 +191,7 @@ export async function raffleRoutes(app: FastifyInstance) {
             supportPhone: true,
             drawDate: true,
             ticketPrice: true,
+            totalNumbers: true
           }
         })
         if (!raffle){
@@ -241,6 +242,7 @@ export async function raffleRoutes(app: FastifyInstance) {
           data: {
             ...raffleData,
             uniqueLink,
+            availableNumbersCount: raffleData.totalNumbers,
           },
         });
         reply.code(200).send(updatedRaffle);

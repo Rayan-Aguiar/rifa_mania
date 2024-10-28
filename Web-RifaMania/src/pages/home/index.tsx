@@ -96,6 +96,7 @@ export default function Home() {
         raffles.map((raffle) => (
           <CardRaffles
             key={raffle.id}
+            id={raffle.id}
             name={raffle.name}
             drawDate={raffle.drawDate}
             img={raffle.img}

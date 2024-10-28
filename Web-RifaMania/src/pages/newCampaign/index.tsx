@@ -19,6 +19,7 @@ import { format, startOfDay } from "date-fns";
 import { pt } from 'date-fns/locale';
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
+import { useTicketQuantities } from "@/hooks/useTicketQuantities";
 
 
 
@@ -33,7 +34,7 @@ const newCampaignSchema = z.object({
     .refine((value) => !isNaN(parseCurrency(value)), {
       message: "Insira um valor válido e positivo",
     }),
-  phoneSupport: z
+    supportPhone: z
     .string()
     .regex(/^\(\d{2}\) \d{5}-\d{4}$/, "Número de telefone inválido"),
     drawDate: z.date({
@@ -46,7 +47,7 @@ const newCampaignSchema = z.object({
 type NewCampaignFormData = z.infer<typeof newCampaignSchema>;
 
 export default function NewCampaign() {
-  const [quantities, setQuantities] = useState<number[]>([]);
+  const { errorTicket, isLoadingTicket, quantitiesTicket} = useTicketQuantities()
   const [estimatedRevenue, setEstimatedRevenue] = useState<number>(0);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const navigate = useNavigate();
@@ -72,13 +73,7 @@ export default function NewCampaign() {
     setEstimatedRevenue(totalNumbersValue * ticketPriceValue);
   }, [totalNumbers, ticketPrice]);
 
-  useEffect(() => {
-    API.get("/raffles/ticket-quantities")
-      .then((response) => setQuantities(response.data))
-      .catch((error) =>
-        console.error("Erro ao buscar quantidades: ", error)
-      );
-  }, []);
+
 
 
 
@@ -102,7 +97,7 @@ export default function NewCampaign() {
       totalNumbers: Number(data.totalNumbers),
       ticketPrice: parseCurrency(data.ticketPrice),
       drawDate: date.toISOString(),
-      phoneSupport: data.phoneSupport,
+      supportPhone: data.supportPhone,
     };
 
     const token = localStorage.getItem("token");
@@ -165,14 +160,18 @@ export default function NewCampaign() {
               id="totalNumbers"
               className="flex justify-start rounded border px-3 py-2 text-sm text-gray-500"
             >
-              <SelectValue placeholder="Selecione" />
+              <SelectValue placeholder={isLoadingTicket ? "Carregando..." : "Selecione"} />
             </SelectTrigger>
             <SelectContent>
-              {quantities.map((quantity) => (
-                <SelectItem key={quantity} value={String(quantity)}>
-                  {quantity} Bilhetes
-                </SelectItem>
-              ))}
+              {errorTicket ? (
+                <SelectItem value="error">Erro ao carregar quantidades</SelectItem>
+              ) : (
+                quantitiesTicket.map((quantity) => (
+                  <SelectItem key={quantity} value={String(quantity)}>
+                    {quantity} Bilhetes
+                  </SelectItem>
+                ))
+              )}
             </SelectContent>
           </Select>
           {errors.totalNumbers && (
@@ -230,16 +229,16 @@ export default function NewCampaign() {
             </div>
           </div>
 
-          <Label htmlFor="phoneSupport">Telefone para suporte</Label>
+          <Label htmlFor="supportPhone">Telefone para suporte</Label>
           <Input
             type="tel"
-            id="phoneSupport"
+            id="supportPhone"
             placeholder="(00) 00000-0000"
             maxLength={15}
-            {...register("phoneSupport")}
+            {...register("supportPhone")}
             onChange={(e) => {
               const formattedPhone = formatPhone(e.target.value);
-              setValue("phoneSupport", formattedPhone);
+              setValue("supportPhone", formattedPhone);
             }}
           />
 
