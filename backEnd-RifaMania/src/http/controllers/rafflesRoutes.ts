@@ -116,6 +116,11 @@ export async function raffleRoutes(app: FastifyInstance) {
       try {
         const raffle = await prisma.raffle.findUnique({
           where: { uniqueLink: slug },
+          include: {
+            creator:{
+              select: {name: true}
+            }
+          }
         });
 
         if (!raffle) {
@@ -140,6 +145,7 @@ export async function raffleRoutes(app: FastifyInstance) {
           availableNumbers,
           availableCount,
           soldTicketsCount: soldNumbers.length,
+          creatorName: raffle.creator?.name
         });
       } catch (error) {
         console.error("Erro ao buscar a rifa:", error);
