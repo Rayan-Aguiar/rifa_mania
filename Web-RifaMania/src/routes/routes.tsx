@@ -10,6 +10,7 @@ import MyAccount from "@/pages/myAccount"
 import { PrivateRoute } from "./privaderouter"
 import NewCampaign from "@/pages/newCampaign"
 import EditCampaign from "@/pages/editCampaign"
+import BuyRaffle from "@/pages/BuyRaffle"
 
 export default function Router() {
     return(
@@ -26,6 +27,8 @@ export default function Router() {
                     <Route path="/nova-campanha" element={<PrivateRoute element={<NewCampaign />}/>} />                
                     <Route path="/editar-campanha/:id" element={<PrivateRoute element={<EditCampaign />}/>} />                
                 </Route>
+
+                <Route path="/comprar-rifa/:slug" element={<BuyRaffle />} />
                 
             </Routes>
         </BrowserRouter>
