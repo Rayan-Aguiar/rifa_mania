@@ -23,9 +23,16 @@ export const CardRaffles = ({
   img,
   status,
   drawDate,
+  uniqueLink
 }: RaffleProps) => {
   const badgeClass = statusColors[status] || "bg-gray-400"
   const remainingDays = calculateRemainingDays(drawDate)
+
+  const handleOpenRaffle = () => {
+    if (uniqueLink) {
+      window.open(`/comprar-rifa/${uniqueLink}`, "_blank"); 
+    }
+  };
 
   return (
     <div className="flex h-fit w-full flex-col gap-2 rounded-xl bg-white/40 p-4 shadow-sm">
@@ -51,9 +58,11 @@ export const CardRaffles = ({
         </p>
       </div>
       <div className="flex w-full gap-2">
-        <Button className="flex w-full items-center gap-1 rounded-xl bg-raffle-main hover:bg-raffle-main/90">
-          Visualizar Rifa <Ticket />
-        </Button>
+        
+          <Button onClick={handleOpenRaffle} className="flex w-full items-center gap-1 rounded-xl bg-raffle-main hover:bg-raffle-main/90">
+            Visualizar Rifa <Ticket />
+          </Button>
+        
         <Link to={`/editar-campanha/${id}`} className="w-full">
           <Button className="flex w-full items-center gap-1 rounded-xl bg-raffle-highlight text-raffle-main hover:bg-raffle-highlight/90">
             Gerenciar <Bolt />

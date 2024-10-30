@@ -101,6 +101,7 @@ export default function Home() {
             drawDate={raffle.drawDate}
             img={raffle.img}
             status={raffle.status}
+            uniqueLink={raffle.uniqueLink}
           />
         ))
       )}

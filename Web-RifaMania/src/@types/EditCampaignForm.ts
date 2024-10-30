@@ -4,5 +4,6 @@ export interface EditCampaignFormData {
     totalNumbers: string;  
     ticketPrice: string;   
     supportPhone: string;  
-    drawDate: Date;       
+    drawDate: Date;   
+    prizeImage: string;    
   }

@@ -4,4 +4,5 @@ export interface RaffleProps {
     img?: string;
     status: 'ONLINE' | 'CANCELLED' | 'EXPIRED' | 'SORTING' | 'CONCLUDED';
     drawDate: string;
+    uniqueLink: string;
 }

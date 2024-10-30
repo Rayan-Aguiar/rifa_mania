@@ -62,13 +62,15 @@ export async function raffleRoutes(app: FastifyInstance) {
           ...request.body,
           drawDate: new Date(request.body.drawDate),
           availableNumbersCount: request.body.totalNumbers,
-          drawType: request.body.drawType || "automatico"
+          drawType: request.body.drawType || "automatico",
         });
 
-        if(raffleData.drawDate < new Date()){
+        if (raffleData.drawDate < new Date()) {
           return reply
             .code(400)
-            .send({ message : "A data do sorteio não pode ser anterior à data atual."})
+            .send({
+              message: "A data do sorteio não pode ser anterior à data atual.",
+            });
         }
 
         if (!request.userId) {
@@ -117,10 +119,10 @@ export async function raffleRoutes(app: FastifyInstance) {
         const raffle = await prisma.raffle.findUnique({
           where: { uniqueLink: slug },
           include: {
-            creator:{
-              select: {name: true}
-            }
-          }
+            creator: {
+              select: { name: true },
+            },
+          },
         });
 
         if (!raffle) {
@@ -145,7 +147,7 @@ export async function raffleRoutes(app: FastifyInstance) {
           availableNumbers,
           availableCount,
           soldTicketsCount: soldNumbers.length,
-          creatorName: raffle.creator?.name
+          creatorName: raffle.creator?.name,
         });
       } catch (error) {
         console.error("Erro ao buscar a rifa:", error);
@@ -181,9 +183,9 @@ export async function raffleRoutes(app: FastifyInstance) {
     }
   );
 
-  app.get (
+  app.get(
     "/raffles/:id",
-    {preHandler: verifyToken},
+    { preHandler: verifyToken },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id } = request.params as { id: string };
 
@@ -197,18 +199,18 @@ export async function raffleRoutes(app: FastifyInstance) {
             supportPhone: true,
             drawDate: true,
             ticketPrice: true,
-            totalNumbers: true
-          }
-        })
-        if (!raffle){
+            totalNumbers: true,
+          },
+        });
+        if (!raffle) {
           return reply.code(404).send({ message: "Rifa não encontrada." });
         }
-        reply.code(200).send(raffle)
-      } catch (error){
-        return reply.code(500).send({message: "Internal server error"})
+        reply.code(200).send(raffle);
+      } catch (error) {
+        return reply.code(500).send({ message: "Internal server error" });
       }
     }
-  )
+  );
 
   app.put(
     "/raffles/:id",
@@ -218,30 +220,33 @@ export async function raffleRoutes(app: FastifyInstance) {
       const { userId } = request;
 
       try {
-        const raffleData = raffleSchema.parse(request.body);
-        const raffle = await prisma.raffle.findUnique({
-          where: { id },
+        const raffleSchema = z.object({
+          name: z.string(),
+          totalNumbers: z.number(),
+          prizeImage: z.string().nullable().optional(),
         });
+        const raffleData = raffleSchema.parse(request.body);
 
+        const raffle = await prisma.raffle.findUnique({ where: { id } });
         if (!raffle)
-          return reply.code(404).send({ message: "Rifa não encontradado" });
+          return reply.code(404).send({ message: "Rifa não encontrada" });
 
-        if (raffle.creatorId !== userId) {
+        if (raffle.creatorId !== userId)
           return reply
             .code(403)
             .send({ message: "Você não tem permissão para editar essa rifa!" });
-        }
 
-        if (raffle.status !== "Online") {
+        if (raffle.status !== "Online")
           return reply
             .code(400)
             .send({ message: "Essa rifa não pode mais ser editada." });
-        }
 
         const uniqueLink =
           raffleData.name !== raffle.name
             ? await generateUniqueSlug(raffleData.name)
             : raffle.uniqueLink;
+
+        const imagePath = raffleData.prizeImage ? raffleData.prizeImage : raffle.prizeImage;
 
         const updatedRaffle = await prisma.raffle.update({
           where: { id },
@@ -249,14 +254,16 @@ export async function raffleRoutes(app: FastifyInstance) {
             ...raffleData,
             uniqueLink,
             availableNumbersCount: raffleData.totalNumbers,
+            prizeImage: imagePath,
           },
         });
         reply.code(200).send(updatedRaffle);
       } catch (error) {
         if (error instanceof z.ZodError) {
           reply.code(400).send({ message: error.errors });
+        } else {
+          reply.code(500).send({ message: "Erro ao atualizar a rifa" });
         }
-        reply.code(500).send({ message: "Erro ao atualizar a rifa" });
       }
     }
   );
@@ -281,8 +288,12 @@ export async function raffleRoutes(app: FastifyInstance) {
     }
   );
 
-  app.get('/raffles/ticket-quantities', { preHandler: [verifyToken]}, async (_request: FastifyRequest, reply: FastifyReply) =>{
-    const quantities = ALLOWED_TOTAL_NUMBERS
-    reply.send(quantities)
-  })
+  app.get(
+    "/raffles/ticket-quantities",
+    { preHandler: [verifyToken] },
+    async (_request: FastifyRequest, reply: FastifyReply) => {
+      const quantities = ALLOWED_TOTAL_NUMBERS;
+      reply.send(quantities);
+    }
+  );
 }

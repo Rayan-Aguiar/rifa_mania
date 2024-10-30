@@ -32,6 +32,7 @@ import { formatCurrency } from "@/utils/currencyFormatter"
 import { API } from "@/configs/api"
 import { useToast } from "@/hooks/use-toast"
 import { parseCurrency } from "@/utils/parseCurrency"
+import { convertImageToBase64 } from "@/utils/convertImageToBase64"
 
 const today = startOfDay(new Date())
 
@@ -40,14 +41,14 @@ const editCampaignSchema = z.object({
   description: z.string().optional(),
   totalNumbers: z.string().min(1, "Quantidade de bilhetes é obrigatória"),
   ticketPrice: z
-  .string()
-  .min(1, "O valor do bilhete é obrigatório")
-  .refine((value) => !isNaN(parseCurrency(value)), {
-    message: "Insira um valor válido e positivo",
-  })
-  .refine((value) => parseCurrency(value) > 0, {
-    message: "O valor do bilhete deve ser positivo",
-  }),
+    .string()
+    .min(1, "O valor do bilhete é obrigatório")
+    .refine((value) => !isNaN(parseCurrency(value)), {
+      message: "Insira um valor válido e positivo",
+    })
+    .refine((value) => parseCurrency(value) > 0, {
+      message: "O valor do bilhete deve ser positivo",
+    }),
   supportPhone: z
     .string()
     .regex(/^\(\d{2}\) \d{5}-\d{4}$/, "Número de telefone inválido"),
@@ -96,6 +97,7 @@ export default function EditCampaign() {
       setDate(
         raffleDetails.drawDate ? new Date(raffleDetails.drawDate) : undefined,
       )
+      
     }
   }, [raffleDetails, setValue])
 
@@ -113,6 +115,14 @@ export default function EditCampaign() {
       return
     }
 
+    const imageInput = document.getElementById("image") as HTMLInputElement
+    let imageBase64 = ""
+
+    if (imageInput.files && imageInput.files.length > 0) {
+      const file = imageInput.files[0]
+      imageBase64 = await convertImageToBase64(file)
+    }
+
     const raffleData = {
       name: data.name,
       description: data.description,
@@ -122,6 +132,7 @@ export default function EditCampaign() {
       supportPhone: data.supportPhone,
       availableNumbersCount: Number(data.totalNumbers),
       drawType: "automatico",
+      prizeImage: imageBase64,
     }
     const token = localStorage.getItem("token")
     if (!token) {
@@ -193,7 +204,12 @@ export default function EditCampaign() {
             Tamanho recomendado: proporção 16/12 ou 736x414 pixels
           </p>
         </div>
-        <Input type="file" id="image" />
+        <Input
+          type="file"
+          id="image"
+          accept="image/*"
+          
+        />
 
         <Label htmlFor="totalNumbers">Quantidade de bilhetes</Label>
         <Select
