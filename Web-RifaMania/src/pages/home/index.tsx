@@ -99,7 +99,7 @@ export default function Home() {
             id={raffle.id}
             name={raffle.name}
             drawDate={raffle.drawDate}
-            img={raffle.img}
+            prizeImage={raffle.prizeImage}
             status={raffle.status}
             uniqueLink={raffle.uniqueLink}
           />

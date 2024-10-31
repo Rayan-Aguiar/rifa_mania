@@ -20,7 +20,7 @@ const defaultImage = imgDefault
 export const CardRaffles = ({
   id,
   name,
-  img,
+  prizeImage,
   status,
   drawDate,
   uniqueLink
@@ -39,7 +39,7 @@ export const CardRaffles = ({
       <div className="flex w-full items-center justify-between">
         <div className="h-24 w-36 overflow-hidden rounded-lg">
           <img
-            src={img || defaultImage}
+            src={prizeImage || defaultImage}
             alt="campanha"
             className="h-full w-full object-cover transition-transform duration-300 hover:scale-110"
           />

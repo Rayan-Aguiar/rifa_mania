@@ -13,11 +13,13 @@ import { useNavigate, useParams } from "react-router-dom"
 
 export default function BuyRaffle() {
   const [raffle, setRaffle] = useState<RaffleData | null>(null)
-  const [isFooterVisible, setIsFooterVisible] = useState(false);
+  const [isFooterVisible, setIsFooterVisible] = useState(false)
   const [selectedTickets, setSelectedTickets] = useState<number[]>([])
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
-  const phoneNumber = raffle?.supportPhone ? formatPhoneNumber(raffle.supportPhone) : ""
+  const phoneNumber = raffle?.supportPhone
+    ? formatPhoneNumber(raffle.supportPhone)
+    : ""
 
   useEffect(() => {
     const fetchRaffleData = async () => {
@@ -26,7 +28,7 @@ export default function BuyRaffle() {
         setRaffle(response.data)
       } catch (error) {
         console.error("Erro ao buscar dados da rifa:", error)
-        navigate('/')
+        navigate("/")
       }
     }
     if (slug) fetchRaffleData()
@@ -34,14 +36,14 @@ export default function BuyRaffle() {
 
   const imageDefault = imgDefault
   const raffleImage = raffle?.prizeImage || imageDefault
-  const totalAmount = raffle ? selectedTickets.length * raffle.ticketPrice : 0;
+  const totalAmount = raffle ? selectedTickets.length * raffle.ticketPrice : 0
 
   const handleSelectionChange = (selectedTickets: number[]) => {
     setSelectedTickets(selectedTickets)
     setIsFooterVisible(selectedTickets.length > 0)
   }
 
-  useAdjustScroll(isFooterVisible);
+  useAdjustScroll(isFooterVisible)
 
   if (!raffle) return <div>Loading...</div>
 
@@ -54,13 +56,15 @@ export default function BuyRaffle() {
       </header>
 
       <main className="container mx-auto mt-8 flex flex-col items-center justify-center gap-6 p-6">
-        <div className="min-h-fit max-w-[736px] overflow-hidden rounded-lg">
-          <div className="max-h-[414px] max-w-[736px]">
-            <img src={raffleImage} alt="" className="object-cover" />
+        <div className="min-h-fit w-[736px] overflow-hidden rounded-lg">
+          <div className="max-h-[414px] w-[736px] overflow-hidden">
+            <img src={raffleImage} alt={raffle?.name} className="w-full h-[414px] object-cover object-center transform hover:scale-105 duration-500 " />
           </div>
           <div className="min-h-32 bg-white/30 p-4">
             <h1 className="text-wrap text-xl font-bold">{raffle?.name}</h1>
-            <p className="mt-2 text-wrap text-justify text-sm">{raffle?.description}</p>
+            <p className="mt-2 text-wrap text-justify text-sm">
+              {raffle?.description}
+            </p>
           </div>
         </div>
         <div>
@@ -89,7 +93,10 @@ export default function BuyRaffle() {
             </div>
             <div className="flex h-8 w-full items-center rounded-lg bg-raffle-main/20 px-2 py-1">
               <p className="flex w-full items-center justify-around text-sm font-semibold">
-                Vendidos: <span>{raffle.totalNumbers - raffle.availableNumbersCount}</span>
+                Vendidos:{" "}
+                <span>
+                  {raffle.totalNumbers - raffle.availableNumbersCount}
+                </span>
               </p>
             </div>
           </div>
@@ -121,12 +128,12 @@ export default function BuyRaffle() {
       </main>
 
       {selectedTickets.length > 0 && (
-        <footer className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between bg-raffle-main/90 py-4 px-32">
+        <footer className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between bg-raffle-main/90 px-32 py-4">
           <div className="flex flex-col">
             <p className="text-whiteCustom">
               {selectedTickets.length} bilhetes selecionados
             </p>
-            <span className="text-raffle-highlight font-bold text-2xl">
+            <span className="text-2xl font-bold text-raffle-highlight">
               {formatCurrency(totalAmount)}
             </span>
           </div>

@@ -33,6 +33,7 @@ import { API } from "@/configs/api"
 import { useToast } from "@/hooks/use-toast"
 import { parseCurrency } from "@/utils/parseCurrency"
 import { convertImageToBase64 } from "@/utils/convertImageToBase64"
+import axios from "axios"
 
 const today = startOfDay(new Date())
 
@@ -140,12 +141,14 @@ export default function EditCampaign() {
       return
     }
 
+    console.log("Dados a serem enviados:", raffleData);
     try {
       await API.put(`/raffles/${id}`, raffleData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
+      
       toast({
         title: "Sucesso!",
         description: "Rifa atualizada com sucesso.",
@@ -153,6 +156,11 @@ export default function EditCampaign() {
       })
       navigate("/home")
     } catch (error) {
+      if(axios.isAxiosError(error)){
+        console.error("Erro ao atualizar rifa (axios): ", error.response?.data)
+        console.error("Erro ao atualizar rifa (message): ", error.message)
+        console.log("Detalhes do erro (JSON): ", error.toJSON());
+      }
       console.error("Erro ao atualizar rifa: ", error)
       toast({
         title: "Erro!",
