@@ -11,6 +11,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { formatCardNumber } from "@/utils/formatCardNumber"
 import { formatCardExpiry } from "@/utils/formatCardExpiry"
+import { useLocation } from "react-router-dom"
+import { formatCurrency } from "@/utils/currencyFormatter"
+import { API } from "@/configs/api"
 
 const checkoutSchema = z.object({
   name: z.string().nonempty("Nome é obrigatório"),
@@ -18,13 +21,18 @@ const checkoutSchema = z.object({
   phone: z.string().nonempty("Telefone é obrigatório"),
   email: z.string().email("Email inválido"),
   cardNumber: z.string().optional(),
-  cardExpiry: z.string().regex(/^(0[1-9]|1[0-2])\/\d{2}$/, "Data de validade inválida").optional(),
+  cardExpiry: z
+    .string()
+    .regex(/^(0[1-9]|1[0-2])\/\d{2}$/, "Data de validade inválida")
+    .optional(),
   cardCvc: z.string().optional(),
 })
 
 type checkoutFormData = z.infer<typeof checkoutSchema>
 
 export default function CheckoutPayment() {
+  const location = useLocation()
+  const { raffleId, ticketPrice, selectedNumbers, raffleName, raffleImage, selectedTicketNumbers } = location.state || {}
   const [selectedPayment, setSelectedPayment] = useState("")
   const {
     register,
@@ -35,28 +43,48 @@ export default function CheckoutPayment() {
     resolver: zodResolver(checkoutSchema),
   })
 
-  const onSubmit = (data: checkoutFormData) => {
-    console.log(data)
+  const handleCardNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value
+    const formatted = formatCardNumber(inputValue)
+    setValue("cardNumber", formatted, { shouldValidate: true })
   }
 
-  const handleCardNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
-    const formatted = formatCardNumber(inputValue);
-    setValue("cardNumber", formatted, { shouldValidate: true }); 
-  };
-
   const handleCardExpiry = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
-    const formatted = formatCardExpiry(inputValue);
+    const inputValue = e.target.value
+    const formatted = formatCardExpiry(inputValue)
 
-    if (formatted === 'Mês inválido, por favor verifique') {
-      setValue("cardExpiry", '', { shouldValidate: false });
-      alert(formatted); 
+    if (formatted === "Mês inválido, por favor verifique") {
+      setValue("cardExpiry", "", { shouldValidate: false })
+      alert(formatted)
     } else {
-      setValue("cardExpiry", formatted, { shouldValidate: true });
+      setValue("cardExpiry", formatted, { shouldValidate: true })
+    }
+  }
+
+  const totalAmount = ticketPrice * selectedNumbers
+
+  const onSubmit = async (data: checkoutFormData) => {
+    const transactionData = {
+      name: data.name,
+      email: data.email,
+      numbers: selectedTicketNumbers,
+      phone: data.phone.replace(/\D/g, ""),
+      paymentMethod: selectedPayment,
+      transactionAmount: totalAmount,
+      description: `Compra de bilhete para a rifa ${raffleName}`,
+      identificationType: "CPF",
+      identificationNumber: data.cpf.replace(/\D/g, ""),
+    };
+  
+    try {
+      const response = await API.post(`/raffles/${raffleId}/tickets`, transactionData);
+      console.log(response.data); 
+    } catch (error) {
+      console.error("Erro:", error);
     }
   };
   
+
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-whiteCustom text-raffle-main">
       <div className="flex h-[700px] w-[1000px] gap-4 overflow-hidden rounded-3xl bg-white p-4 shadow">
@@ -164,7 +192,7 @@ export default function CheckoutPayment() {
                       maxLength={19}
                       placeholder="0000 0000 0000 0000"
                       {...register("cardNumber", {
-                        onChange: handleCardNumber 
+                        onChange: handleCardNumber,
                       })}
                     />
                   </div>
@@ -176,7 +204,9 @@ export default function CheckoutPayment() {
                         type="text"
                         maxLength={5}
                         placeholder="MM/AA"
-                        {...register("cardExpiry", { onChange: handleCardExpiry })}
+                        {...register("cardExpiry", {
+                          onChange: handleCardExpiry,
+                        })}
                       />
                     </div>
                     <div className="w-1/2">
@@ -203,28 +233,36 @@ export default function CheckoutPayment() {
           </div>
         </div>
 
-        <div className="w-2/5 rounded-xl bg-raffle-main flex flex-col items-center text-white px-6 py-16">
-            <div>
-              <p className="text-center">Total</p>
-              <span className="font-bold  text-3xl text-raffle-highlight ">R$ 100,00</span>
-            </div>
-              <div className="border-t border-white/50 my-16 w-full"/>
-              <div className="w-full flex flex-col items-start">
-                <p className="text-sm">Descrição do pedido</p>
-                <div className="flex w-full flex-col my-6">
-                    <div className="flex justify-between">
-                        <p>Quantidade de bilhetes:</p>
-                        <span className="font-semibold">10</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <p>Preço unitário:</p>
-
-                        <span className="font-semibold">R$ 10,00</span>
-                    </div>
-                    
+        <div className="flex w-2/5 flex-col items-center rounded-xl bg-raffle-main px-6 py-16 text-white">
+          <div>
+            <p className="text-center">Total</p>
+            <span className="text-3xl font-bold text-raffle-highlight">
+              {formatCurrency(totalAmount)}
+            </span>
+          </div>
+          <div className="my-16 w-full border-t border-white/50" />
+          <div className="flex w-full flex-col items-start">
+            <p className="text-sm">Descrição do pedido</p>
+            <div className="my-6 flex w-full flex-col gap-2">
+                <div className="flex justify-between">
+                    <p>Você está concorrendo:</p>
+                    <span className="font-semibold">{raffleName}</span>
                 </div>
-              </div>
 
+              <div className="flex justify-between">
+                <p>Quantidade de bilhetes:</p>
+                <span className="font-semibold">{selectedNumbers}</span>
+              </div>
+              <div className="flex justify-between">
+                <p>Preço unitário:</p>
+                <span className="font-semibold">{formatCurrency(ticketPrice)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="w-full h-56 overflow-hidden rounded-xl border-raffle-highlight border-2">
+            <img src={raffleImage} alt={raffleName} className="object-cover object-center h-56 w-full" />
+          </div>
         </div>
       </div>
     </div>

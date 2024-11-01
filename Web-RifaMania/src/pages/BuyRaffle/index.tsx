@@ -43,6 +43,9 @@ export default function BuyRaffle() {
     setIsFooterVisible(selectedTickets.length > 0)
   }
 
+
+ 
+
   useAdjustScroll(isFooterVisible)
 
   if (!raffle) return <div>Loading...</div>
@@ -142,9 +145,25 @@ export default function BuyRaffle() {
             </span>
           </div>
           <div>
-            <Button className="bg-white text-raffle-main hover:bg-raffle-highlight">
-              Participar
-            </Button>
+          <Button
+            className="bg-white text-raffle-main hover:bg-raffle-highlight"
+            onClick={() => {
+              const selectedCount = selectedTickets.length; 
+
+              navigate("/checkout", {
+                state: {
+                  raffleId: raffle.id,
+                  raffleName: raffle.name,
+                  ticketPrice: raffle.ticketPrice,
+                  selectedNumbers: selectedCount, 
+                  selectedTicketNumbers: selectedTickets,
+                  raffleImage: raffleImage
+                },
+              });
+            }}
+          >
+            Participar
+          </Button>
           </div>
         </footer>
       )}
