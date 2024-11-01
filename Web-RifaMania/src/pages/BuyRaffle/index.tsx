@@ -58,7 +58,11 @@ export default function BuyRaffle() {
       <main className="container mx-auto mt-8 flex flex-col items-center justify-center gap-6 p-6">
         <div className="min-h-fit w-[736px] overflow-hidden rounded-lg">
           <div className="max-h-[414px] w-[736px] overflow-hidden">
-            <img src={raffleImage} alt={raffle?.name} className="w-full h-[414px] object-cover object-center transform hover:scale-105 duration-500 " />
+            <img
+              src={raffleImage}
+              alt={raffle?.name}
+              className="h-[414px] w-full transform object-cover object-center duration-500 hover:scale-105"
+            />
           </div>
           <div className="min-h-32 bg-white/30 p-4">
             <h1 className="text-wrap text-xl font-bold">{raffle?.name}</h1>

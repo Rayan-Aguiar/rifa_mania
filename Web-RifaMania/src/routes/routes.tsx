@@ -11,6 +11,7 @@ import { PrivateRoute } from "./privaderouter"
 import NewCampaign from "@/pages/newCampaign"
 import EditCampaign from "@/pages/editCampaign"
 import BuyRaffle from "@/pages/BuyRaffle"
+import CheckoutPayment from "@/pages/CheckoutPayment"
 
 export default function Router() {
     return(
@@ -29,6 +30,7 @@ export default function Router() {
                 </Route>
 
                 <Route path="/comprar-rifa/:slug" element={<BuyRaffle />} />
+                <Route path="/checkout" element={<CheckoutPayment />} />
                 
             </Routes>
         </BrowserRouter>
