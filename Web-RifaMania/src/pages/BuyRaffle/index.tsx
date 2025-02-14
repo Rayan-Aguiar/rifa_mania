@@ -43,7 +43,7 @@ export default function BuyRaffle() {
     setIsFooterVisible(selectedTickets.length > 0)
   }
 
-
+console.log('Disponiveis: ',raffle?.availableNumbersCount)
  
 
   useAdjustScroll(isFooterVisible)
@@ -95,23 +95,23 @@ export default function BuyRaffle() {
             </div>
             <div className="flex h-8 w-full items-center rounded-lg bg-white/70 px-2 py-1">
               <p className="flex w-full items-center justify-around text-sm font-semibold">
-                Disponiveis: <span>{raffle?.availableNumbersCount}</span>
+                Disponiveis: <span>{raffle?.availableCount}</span>
               </p>
             </div>
             <div className="flex h-8 w-full items-center rounded-lg bg-raffle-main/20 px-2 py-1">
               <p className="flex w-full items-center justify-around text-sm font-semibold">
                 Vendidos:{" "}
                 <span>
-                  {raffle.totalNumbers - raffle.availableNumbersCount}
+                  {raffle.soldTicketsCount}
                 </span>
               </p>
             </div>
           </div>
           <div>
-            <TicketSelection
-              availableNumbersCount={raffle?.availableNumbersCount}
-              onSelectionChange={handleSelectionChange}
-            />
+              <TicketSelection
+                availableNumbers={raffle?.availableNumbers || []}
+                onSelectionChange={handleSelectionChange}
+              />
           </div>
         </div>
 

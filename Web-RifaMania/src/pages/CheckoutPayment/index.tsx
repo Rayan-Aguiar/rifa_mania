@@ -4,13 +4,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { ChevronRight, CreditCard, LoaderCircle } from "lucide-react"
+import { ChevronRight, LoaderCircle } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { formatCardNumber } from "@/utils/formatCardNumber"
-import { formatCardExpiry } from "@/utils/formatCardExpiry"
 import { useLocation } from "react-router-dom"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { API } from "@/configs/api"
@@ -40,36 +38,18 @@ export default function CheckoutPayment() {
     ticketPrice,
     selectedNumbers,
     raffleName,
-    raffleImage,
     selectedTicketNumbers,
   } = location.state || {}
   const [selectedPayment, setSelectedPayment] = useState("")
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<checkoutFormData>({
     resolver: zodResolver(checkoutSchema),
   })
 
-  const handleCardNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value
-    const formatted = formatCardNumber(inputValue)
-    setValue("cardNumber", formatted, { shouldValidate: true })
-  }
-
-  const handleCardExpiry = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value
-    const formatted = formatCardExpiry(inputValue)
-
-    if (formatted === "Mês inválido, por favor verifique") {
-      setValue("cardExpiry", "", { shouldValidate: false })
-      alert(formatted)
-    } else {
-      setValue("cardExpiry", formatted, { shouldValidate: true })
-    }
-  }
+ 
 
   const totalAmount = Math.floor(ticketPrice * selectedNumbers / 100);
   const totalAmountView = ticketPrice * selectedNumbers
@@ -185,7 +165,7 @@ export default function CheckoutPayment() {
                 >
                   <Label
                     htmlFor="pix"
-                    className={`flex h-10 w-full items-center justify-center gap-2 rounded border p-2 text-slate-500 ${
+                    className={`flex h-10 w-40 items-center justify-center gap-2 rounded border p-2 text-slate-500 ${
                       selectedPayment === "pix"
                         ? "border-2 border-raffle-main font-bold text-raffle-main"
                         : ""
@@ -194,60 +174,11 @@ export default function CheckoutPayment() {
                     <img src={pixIcon} alt="Icone pix" className={`w-4`} /> PIX
                   </Label>
                   <RadioGroupItem value="pix" id="pix" className="hidden" />
-                  <Label
-                    htmlFor="card"
-                    className={`flex h-10 w-full items-center justify-center gap-2 rounded border p-2 text-slate-500 ${
-                      selectedPayment === "card"
-                        ? "border-2 border-raffle-main font-bold text-raffle-main"
-                        : ""
-                    }`}
-                  >
-                    <CreditCard /> Cartão de Crédito
-                  </Label>
+                  
                   <RadioGroupItem value="card" id="card" className="hidden" />
                 </RadioGroup>
               </div>
 
-              {selectedPayment === "card" && (
-                <div className="flex flex-col space-y-4">
-                  <div>
-                    <Label htmlFor="cardNumber">Número do Cartão</Label>
-                    <Input
-                      id="cardNumber"
-                      type="text"
-                      maxLength={19}
-                      placeholder="0000 0000 0000 0000"
-                      {...register("cardNumber", {
-                        onChange: handleCardNumber,
-                      })}
-                    />
-                  </div>
-                  <div className="flex w-full gap-2">
-                    <div className="w-1/2">
-                      <Label htmlFor="cardExpiry">Validade</Label>
-                      <Input
-                        id="cardExpiry"
-                        type="text"
-                        maxLength={5}
-                        placeholder="MM/AA"
-                        {...register("cardExpiry", {
-                          onChange: handleCardExpiry,
-                        })}
-                      />
-                    </div>
-                    <div className="w-1/2">
-                      <Label htmlFor="cardCvc">CVC</Label>
-                      <Input
-                        id="cardCvc"
-                        type="text"
-                        maxLength={4}
-                        placeholder="CVC"
-                        {...register("cardCvc")}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
 
               <Button
                 type="submit"
