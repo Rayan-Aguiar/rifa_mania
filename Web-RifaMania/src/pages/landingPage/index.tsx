@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Bolt, Gift, Rocket, SwatchBook, Ticket } from "lucide-react"
 import { Link } from "react-router-dom"
 import LogoImg from "@/assets/Rifamania-logo.png"
+import cellPhone from "@/assets/cellPhone.png"
 
 export default function LandingPage() {
   return (
@@ -47,8 +48,8 @@ export default function LandingPage() {
             </div>
             <div>
               <img
-                src="https://rifaup.com.br/_next/static/media/header.d1886ab7.webp"
-                alt=""
+                src={cellPhone}
+                alt="Imagem principal"
                 className="w-96"
               />
             </div>

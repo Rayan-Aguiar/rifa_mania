@@ -15,6 +15,7 @@ model User {
   cpf      String?
   phone    String
   raffles  Raffle[]
+  accessToken String?
 }
 
 model Raffle {

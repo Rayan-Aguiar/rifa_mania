@@ -43,8 +43,6 @@ export default function BuyRaffle() {
     setIsFooterVisible(selectedTickets.length > 0)
   }
 
-console.log('Disponiveis: ',raffle?.availableNumbersCount)
- 
 
   useAdjustScroll(isFooterVisible)
 
@@ -64,7 +62,7 @@ console.log('Disponiveis: ',raffle?.availableNumbersCount)
             <img
               src={raffleImage}
               alt={raffle?.name}
-              className="h-[414px] w-full transform object-cover object-center duration-500 hover:scale-105"
+              className="h-[414px] w-full transform object-contain duration-500 hover:scale-105"
             />
           </div>
           <div className="min-h-32 bg-white/30 p-4">

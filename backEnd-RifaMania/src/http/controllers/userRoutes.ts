@@ -190,4 +190,29 @@ export async function userRoutes(app: FastifyInstance) {
       }
     }
   );
+
+  app.patch("/users/accessToken", {preHandler: [verifyToken]}, async(request: FastifyRequest, reply: FastifyReply) => {
+    const { userId } = request;
+    const { accessToken } = request.body as {accessToken: string}
+
+    if(!accessToken) {
+      return reply.code(400).send({message: "Access token obrigatório"})
+    }
+
+    try {
+      const saltRounds = 10
+      const hashedToken = await bcrypt.hash(accessToken, saltRounds)
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: { accessToken: hashedToken },
+      });
+
+      reply.send({ message: "Access token atualizado com sucesso" });
+    } catch (error) {
+      console.error("Erro ao atualizar o access token:", error);
+      reply.code(500).send({ message: "Erro interno do servidor" });
+    }
+
+  })
 }
