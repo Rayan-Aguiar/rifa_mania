@@ -15,7 +15,7 @@ const prisma = new PrismaClient();
 
 app.register(cors, {
   origin: '*',
-  methods: 'GET, POST, PUT, DELETE',
+  methods: 'GET, POST, PATCH,PUT, DELETE',
 })
 
 app.register(userRoutes);
