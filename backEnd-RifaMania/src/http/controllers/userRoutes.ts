@@ -26,7 +26,34 @@ const userSchema = z.object({
 });
 
 export async function userRoutes(app: FastifyInstance) {
-  app.post("/users", async (request, reply) => {
+  app.post("/users", {
+    schema: {
+      description: "Cria um novo usuário",
+      tags: ["Users"],
+      body: {
+        type: "object",
+        properties: {
+          email: { type: "string", format: "email" },
+          password: { type: "string", minLength: 8 },
+          cpf: { type: "string", nullable: true },
+          phone: { type: "string", nullable: true },
+          name: { type: "string", minLength: 3 },
+        },
+        required: ["email", "password", "name"],
+      },
+      response: {
+        201: {
+          description: "Usuário criado com sucesso",
+          type: "object",
+          properties: {
+            id: { type: "string" },
+            email: { type: "string" },
+            name: { type: "string" },
+          },
+        },
+      },
+    },
+  }, async (request, reply) => {
     try {
       const userData = userSchema.parse(request.body);
       const hashedPassword = await hashPassword(userData.password);
@@ -55,7 +82,18 @@ export async function userRoutes(app: FastifyInstance) {
 
   app.delete(
     "/users",
-    { preHandler: [verifyToken] },
+    {
+      preHandler: [verifyToken],
+      schema: {
+        description: "Deleta o usuário autenticado",
+        tags: ["Users"],
+        response: {
+          204: {
+            description: "Usuário deletado com sucesso",
+          },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const decoded = await verifyToken(request, reply);
@@ -83,7 +121,34 @@ export async function userRoutes(app: FastifyInstance) {
 
   app.put<{ Body: UserUpdateRequest }>(
     "/users",
-    { preHandler: [verifyToken] },
+    {
+      preHandler: [verifyToken],
+      schema: {
+        description: "Atualiza os dados do usuário autenticado",
+        tags: ["Users"],
+        body: {
+          type: "object",
+          properties: {
+            name: { type: "string", nullable: true },
+            phone: { type: "string", nullable: true },
+            cpf: { type: "string", nullable: true },
+          },
+        },
+        response: {
+          200: {
+            description: "Usuário atualizado com sucesso",
+            type: "object",
+            properties: {
+              id: { type: "string" },
+              email: { type: "string" },
+              name: { type: "string" },
+              phone: { type: "string" },
+              cpf: { type: "string" },
+            },
+          },
+        },
+      },
+    },
     async (
       request: FastifyRequest<{ Body: UserUpdateRequest }>,
       reply: FastifyReply
@@ -125,7 +190,25 @@ export async function userRoutes(app: FastifyInstance) {
 
   app.get(
     "/users",
-    { preHandler: [verifyToken] },
+    {
+      preHandler: [verifyToken],
+      schema: {
+        description: "Obtém os dados do usuário autenticado",
+        tags: ["Users"],
+        response: {
+          200: {
+            description: "Dados do usuário",
+            type: "object",
+            properties: {
+              email: { type: "string" },
+              name: { type: "string" },
+              phone: { type: "string" },
+              cpf: { type: "string" },
+            },
+          },
+        },
+      },
+    },    
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { userId } = request;
       try {
@@ -153,7 +236,27 @@ export async function userRoutes(app: FastifyInstance) {
 
   app.put<{ Body: PasswordChangeBody }>(
     "/users/password",
-    { preHandler: [verifyToken] },
+    { 
+      preHandler: [verifyToken],
+      schema: {
+        description: 'Permite o usuário alterar sua senha atual',
+        tags: ['Users'],
+        body: {
+          type: 'object',
+          properties: {
+            currentPassword: { type:'string', description: 'Senha atual do usuário' },
+            newPassword: { type:'string', minLength: 8 , description: "Nova senha do usuário"},
+          },
+          required: ['currentPassword', 'newPassword'],
+        },
+        response: {
+          204: { description: "Senha alterada com sucesso" },
+          400: { description: "Senha atual inválida ou erro de validação" },
+          404: { description: "Usuário não encontrado" },
+          500: { description: "Erro interno do servidor" },
+        }
+      } 
+    },
     async (
       request: FastifyRequest<{ Body: PasswordChangeBody }>,
       reply: FastifyReply
@@ -196,7 +299,25 @@ export async function userRoutes(app: FastifyInstance) {
 
   app.patch(
     "/users/accessToken",
-    { preHandler: [verifyToken] },
+    {
+      preHandler: [verifyToken],
+      schema: {
+        description: "Atualiza o access token do usuário.",
+        tags: ["Users"],
+        body: {
+          type: "object",
+          required: ["accessToken"],
+          properties: {
+            accessToken: { type: "string", description: "Novo access token" },
+          },
+        },
+        response: {
+          200: { description: "Access token atualizado com sucesso" },
+          400: { description: "Access token obrigatório" },
+          500: { description: "Erro interno do servidor" },
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { userId } = request;
       const { accessToken } = request.body as { accessToken: string };

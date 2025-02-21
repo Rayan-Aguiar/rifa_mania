@@ -8,10 +8,25 @@ import { authRoutes } from './http/controllers/authRoutes';
 import { raffleRoutes } from './http/controllers/rafflesRoutes';
 import { startCronJob } from './utils/cron';
 import { purchaseTicketRoutes } from './http/controllers/ticketsRoutes';
+import fastifySwagger from "@fastify/swagger";
+import fastifySwaggerUi from "@fastify/swagger-ui";
 
 export const app = fastify();
 const prisma = new PrismaClient();
 
+app.register(fastifySwagger,{
+  openapi: {
+    info: {
+      title: 'Rifa Mania API',
+      version: '1.0.0',
+      description: "Documentação da API usando Fastify e Swagger"
+    }
+  }
+})
+
+app.register(fastifySwaggerUi, {
+  routePrefix: "/docs",
+});
 
 app.register(cors, {
   origin: '*',
