@@ -4,7 +4,6 @@ import { prisma } from "../../lib/prisma";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { env } from "../../env";
-import { hashPassword } from "../../utils/hashPassword";
 
 interface LoginRequest {
   email: string;
@@ -19,7 +18,40 @@ const loginSchema = z.object({
 export async function authRoutes(app: FastifyInstance) {
   app.post(
     "/auth/login",
-    async (request: FastifyRequest<{ Body: LoginRequest }>, reply: FastifyReply) => {
+    {
+      schema: {
+        description: "Realiza login e retorna um token JWT para autenticação.",
+        tags: ["Autenticação"],
+        body: {
+          type: "object",
+          properties: {
+            email: { type: "string", format: "email" },
+            password: { type: "string", minLength: 8 },
+          },
+          required: ["email", "password"],
+        },
+        response: {
+          200: {
+            description:
+              "Login bem-sucedido, retorna um token de autenticação.",
+            type: "object",
+            properties: {
+              token: { type: "string" },
+            },
+          },
+          401: {
+            description: "Credenciais inválidas (email ou senha incorretos).",
+          },
+          500: {
+            description: "Erro interno do servidor.",
+          },
+        },
+      },
+    },
+    async (
+      request: FastifyRequest<{ Body: LoginRequest }>,
+      reply: FastifyReply
+    ) => {
       try {
         const { email, password } = loginSchema.parse(request.body);
 
