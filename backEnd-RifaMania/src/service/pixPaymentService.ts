@@ -1,8 +1,8 @@
 import { Payment, MercadoPagoConfig } from "mercadopago";
 import { PaymentRequestData } from "../@types/paymentTypes";
 import { prisma } from "../lib/prisma";
+import { decrypt } from "../utils/cryptoUtils";
 
-//accessToken:"APP_USR-834756092639222-103111-0a22d9beadccc9c80411069fd2bbc4de-168270801"
 export async function processPixPayment(
   userId: string,
   paymentData: PaymentRequestData
@@ -20,8 +20,11 @@ export async function processPixPayment(
     throw new Error("Access token não encontrado para este usuário.");
   }
 
+  const decryptedAccessToken = decrypt(user.accessToken)
+  console.log(decryptedAccessToken)
+
   const client = new MercadoPagoConfig({
-    accessToken: user.accessToken,
+    accessToken: decryptedAccessToken,
   });
   const payment = new Payment(client);
 
@@ -32,7 +35,6 @@ export async function processPixPayment(
     payer: {
       email: paymentData.payer.email,
     },
-    /* notification_url: "https://seusite.com/webhook/mercadopago" */
   };
 
   const result = await payment.create({

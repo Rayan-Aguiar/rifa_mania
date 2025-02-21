@@ -4,6 +4,7 @@ import { prisma } from "../../lib/prisma";
 import bcrypt from "bcryptjs";
 import { hashPassword } from "../../utils/hashPassword";
 import { verifyToken } from "../../middlewares/verifyToken";
+import { encrypt } from "../../utils/cryptoUtils";
 
 interface UserUpdateRequest {
   name?: string;
@@ -52,31 +53,33 @@ export async function userRoutes(app: FastifyInstance) {
     }
   });
 
-  app.delete("/users",{preHandler: [verifyToken]} ,async (request: FastifyRequest, reply: FastifyReply) => {
+  app.delete(
+    "/users",
+    { preHandler: [verifyToken] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const decoded = await verifyToken(request, reply);
+        if (!decoded) {
+          return;
+        }
 
+        const { userId } = decoded;
 
-    try {
-      const decoded = await verifyToken(request, reply);
-      if (!decoded) {
-        return;
+        const userExists = await prisma.user.findUnique({
+          where: { id: userId },
+        });
+        if (!userExists) {
+          return reply.code(404).send({ message: "Usuário não encontrado" });
+        }
+
+        await prisma.user.delete({ where: { id: userId } });
+        reply.code(204).send({ message: "Usuário deletado com sucesso" });
+      } catch (error) {
+        console.error("Erro ao excluir usuário:", error);
+        reply.code(500).send({ message: "Internal server error" });
       }
-
-      const { userId } = decoded;
-
-      const userExists = await prisma.user.findUnique({
-        where: { id: userId },
-      });
-      if (!userExists) {
-        return reply.code(404).send({ message: "Usuário não encontrado" });
-      }
-
-      await prisma.user.delete({ where: { id: userId } });
-      reply.code(204).send({ message: "Usuário deletado com sucesso" });
-    } catch (error) {
-      console.error("Erro ao excluir usuário:", error);
-      reply.code(500).send({ message: "Internal server error" });
     }
-  });
+  );
 
   app.put<{ Body: UserUpdateRequest }>(
     "/users",
@@ -191,28 +194,30 @@ export async function userRoutes(app: FastifyInstance) {
     }
   );
 
-  app.patch("/users/accessToken", {preHandler: [verifyToken]}, async(request: FastifyRequest, reply: FastifyReply) => {
-    const { userId } = request;
-    const { accessToken } = request.body as {accessToken: string}
+  app.patch(
+    "/users/accessToken",
+    { preHandler: [verifyToken] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { userId } = request;
+      const { accessToken } = request.body as { accessToken: string };
 
-    if(!accessToken) {
-      return reply.code(400).send({message: "Access token obrigatório"})
+      if (!accessToken) {
+        return reply.code(400).send({ message: "Access token obrigatório" });
+      }
+
+      try {
+        const encryptedToken = encrypt(accessToken);
+
+        await prisma.user.update({
+          where: { id: userId },
+          data: { accessToken: encryptedToken },
+        });
+
+        reply.send({ message: "Access token atualizado com sucesso" });
+      } catch (error) {
+        console.error("Erro ao atualizar o access token:", error);
+        reply.code(500).send({ message: "Erro interno do servidor" });
+      }
     }
-
-    try {
-      const saltRounds = 10
-      const hashedToken = await bcrypt.hash(accessToken, saltRounds)
-
-      await prisma.user.update({
-        where: { id: userId },
-        data: { accessToken: hashedToken },
-      });
-
-      reply.send({ message: "Access token atualizado com sucesso" });
-    } catch (error) {
-      console.error("Erro ao atualizar o access token:", error);
-      reply.code(500).send({ message: "Erro interno do servidor" });
-    }
-
-  })
+  );
 }
