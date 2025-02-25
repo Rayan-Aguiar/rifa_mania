@@ -12,6 +12,7 @@ export interface RaffleData {
   totalNumbers: number
   closed: boolean
   creatorId: string
+  creatorName: string
   uniqueLink: string
   createdAt: string
   availableNumbers: number[]

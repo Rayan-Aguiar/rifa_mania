@@ -4,8 +4,8 @@ import { verifyToken } from "../../middlewares/verifyToken";
 import { prisma } from "../../lib/prisma";
 import { generateUniqueSlug } from "../../utils/generateUniqueSlug";
 import { RaffleStatus } from "../../constants/raffleStatus";
-import { listRaffles } from "../../service/raffleService";
-import { drawRaffle } from "../../service/drawRaffle";
+import { listRaffles } from "../../functions/raffleService";
+import { drawRaffle } from "../../functions/drawRaffle";
 import { ALLOWED_TOTAL_NUMBERS } from "../../rules/raffleRules";
 
 interface RaffleCreateRequest {

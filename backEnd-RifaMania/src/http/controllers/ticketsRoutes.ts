@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { PurchaseTicket } from "../../rules/ticketRules";
-import { processPixPayment } from "../../service/pixPaymentService";
+import { processPixPayment } from "../../functions/pixPaymentService";
 import { prisma } from "../../lib/prisma";
 
 const purchaseTicketSchema = z.object({

@@ -25,6 +25,7 @@ export default function BuyRaffle() {
     const fetchRaffleData = async () => {
       try {
         const response = await API.get(`/raffles/slug/${slug}`)
+        console.log(response.data)
         setRaffle(response.data)
       } catch (error) {
         console.error("Erro ao buscar dados da rifa:", error)
@@ -116,7 +117,7 @@ export default function BuyRaffle() {
         <div className="flex h-fit w-[736px] items-center justify-between rounded-lg bg-white/30 p-4">
           <div>
             <p className="text-xs">Organizado por</p>
-            <span className="font-bold">{raffle.creator.name}</span>
+            <span className="font-bold">{raffle.creatorName}</span>
           </div>
           <div>
             <a

@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import { updateRaffleStatuses } from '../service/updateRaffleStatuses';
+import { updateRaffleStatuses } from '../functions/updateRaffleStatuses';
 
 export const startCronJob = () => {
     try {

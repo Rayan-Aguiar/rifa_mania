@@ -5,4 +5,6 @@ export interface RaffleProps {
     status: 'ONLINE' | 'CANCELLED' | 'EXPIRED' | 'SORTING' | 'CONCLUDED';
     drawDate: string;
     uniqueLink: string;
+    soldTicketsCount?: number;
+    totalNumbers?: number;
 }
