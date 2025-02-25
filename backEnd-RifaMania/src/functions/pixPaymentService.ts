@@ -21,8 +21,6 @@ export async function processPixPayment(
   }
 
   const decryptedAccessToken = decrypt(user.accessToken)
-  console.log(decryptedAccessToken)
-
   const client = new MercadoPagoConfig({
     accessToken: decryptedAccessToken,
   });

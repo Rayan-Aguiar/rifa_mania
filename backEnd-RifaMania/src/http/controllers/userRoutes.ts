@@ -204,6 +204,7 @@ export async function userRoutes(app: FastifyInstance) {
               name: { type: "string" },
               phone: { type: "string" },
               cpf: { type: "string" },
+              totalRevenue: { type: "number" }
             },
           },
         },
@@ -226,7 +227,22 @@ export async function userRoutes(app: FastifyInstance) {
           return reply.code(404).send({ message: "Usuário não encontrado" });
         }
 
-        reply.send(existingUser);
+        const userRaffles = await prisma.raffle.findMany({
+          where: { creatorId: userId },
+          select: {
+            ticketPrice: true,
+            participants: {
+              select: {
+                id: true,
+              }
+            }
+          },
+        });
+        const totalRevenue = userRaffles.reduce((acc, raffle) => {
+          return acc + (raffle.ticketPrice * raffle.participants.length)
+        },0)
+
+        reply.send({...existingUser, totalRevenue});
       } catch (error) {
         console.error("Erro ao obter dados do usuário:", error);
         reply.code(500).send({ message: "Internal server error" });

@@ -3,6 +3,7 @@ import { CardRaffles } from "@/components/CardRaffles"
 import { Button } from "@/components/ui/button"
 import { API } from "@/configs/api"
 import { useRaffles } from "@/hooks/useRaffles"
+import { formatCurrency } from "@/utils/currencyFormatter"
 import { DollarSign, Eye, EyeOff, LoaderCircle } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
@@ -40,13 +41,16 @@ export default function Home() {
           },
         })
         setUserData(response.data)
-        localStorage.setItem("userData", JSON.stringify(response.data))
+        console.log(response.data)
       } catch (error) {
         console.error(error)
       }
     }
     fetchUserData()
   }, [navigate])
+
+
+  const totalRevenue = userData?.totalRevenue || 0
 
   return (
     <div className="flex flex-col gap-4 text-blackCustom">
@@ -60,7 +64,7 @@ export default function Home() {
             <p className="text-lg">Total arrecadado</p>
             <div className="flex items-center gap-2">
               <span className="text-2xl font-bold text-raffle-main">
-                {showBalace ? "R$ 1000,00" : "*********"}
+                {showBalace ? (<>{formatCurrency(totalRevenue)}</>) : ("*********")}
               </span>
               {showBalace ? (
                 <EyeOff

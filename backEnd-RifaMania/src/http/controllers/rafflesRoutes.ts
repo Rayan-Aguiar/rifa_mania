@@ -498,8 +498,6 @@ export async function raffleRoutes(app: FastifyInstance) {
         const soldTicketsCount = await prisma.participation.count({
           where: { raffleId: id }
         })
-        console.log("Tickets vendidos:", soldTicketsCount);
-
         const raffle = await prisma.raffle.findUnique({
           where: { id },
           select: {

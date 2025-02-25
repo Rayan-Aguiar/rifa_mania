@@ -4,4 +4,5 @@ export interface UserDataProps {
     email?: string;
     phone?: string;
     cpf?: string;
+    totalRevenue?: number;
   }
