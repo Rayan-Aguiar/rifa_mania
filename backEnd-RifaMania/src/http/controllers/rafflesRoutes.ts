@@ -263,6 +263,10 @@ export async function raffleRoutes(app: FastifyInstance) {
                 type: "boolean",
                 description: "Indica se a rifa está fechada",
               },
+              prizeImage: {
+                type: 'string',
+                description: "URL da imagem do prêmio",
+              }
             },
           },
           404: {
@@ -380,6 +384,10 @@ export async function raffleRoutes(app: FastifyInstance) {
                   type: "boolean",
                   description: "Indica se a rifa está fechada",
                 },
+                prizeImage: {
+                  type: 'string',
+                  description: "URL da imagem do prêmio",
+                }
               },
             },
           },
