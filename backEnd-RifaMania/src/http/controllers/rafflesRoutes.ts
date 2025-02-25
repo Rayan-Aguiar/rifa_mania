@@ -652,11 +652,13 @@ export async function raffleRoutes(app: FastifyInstance) {
             type: "object",
             properties: {
               message: { type: "string", example: "Sorteio realizado com sucesso!" },
-              result: { 
+              result: {
                 type: "object",
                 properties: {
-                  winner: { type: "string", description: "Número sorteado vencedor" },
-                  otherDetails: { type: "object", description: "Outros detalhes do sorteio, como números sorteados ou estatísticas" },
+                  winningNumber: { type: "string", description: "Número sorteado vencedor" },
+                  buyerName: { type: "string", description: "Nome do comprador do bilhete vencedor" },
+                  buyerEmail: { type: "string", description: "Email do comprador do bilhete vencedor" },
+                  buyerPhone: { type: "string", description: "Telefone do comprador do bilhete vencedor" },
                 },
               },
             },
@@ -673,7 +675,7 @@ export async function raffleRoutes(app: FastifyInstance) {
           },
         },
       },
-     },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id } = request.params as { id: string };
 
