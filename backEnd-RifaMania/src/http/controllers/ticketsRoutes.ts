@@ -88,21 +88,7 @@ export async function purchaseTicketRoutes(app: FastifyInstance) {
             description:
               "Compra do bilhete bem-sucedida, retorna informações sobre o ticket e o pagamento.",
             type: "object",
-            properties: {
-              message: {
-                type: "string",
-                example: "Ticket comprado com sucesso",
-              },
-              tickets: {
-                type: "array",
-                items: { type: "object" },
-                description: "Detalhes dos bilhetes comprados",
-              },
-              payment: {
-                type: "object",
-                description: "Detalhes do pagamento realizado",
-              },
-            },
+            additionalProperties: true,
           },
           400: {
             description:
@@ -121,7 +107,7 @@ export async function purchaseTicketRoutes(app: FastifyInstance) {
             description: "Erro interno do servidor.",
           },
         },
-      },
+      }, 
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id } = request.params as { id: string };
