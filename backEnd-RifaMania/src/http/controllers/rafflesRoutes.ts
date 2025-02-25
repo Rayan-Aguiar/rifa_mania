@@ -467,6 +467,7 @@ export async function raffleRoutes(app: FastifyInstance) {
                 type: "number",
                 description: "Número total de bilhetes disponíveis",
               },
+              soldTicketsCount: { type: "number", description: "Quantidade de bilhetes vendidos" },
             },
           },
           404: {
@@ -486,6 +487,11 @@ export async function raffleRoutes(app: FastifyInstance) {
       const { id } = request.params as { id: string };
 
       try {
+        const soldTicketsCount = await prisma.participation.count({
+          where: { raffleId: id }
+        })
+        console.log("Tickets vendidos:", soldTicketsCount);
+
         const raffle = await prisma.raffle.findUnique({
           where: { id },
           select: {
@@ -501,7 +507,8 @@ export async function raffleRoutes(app: FastifyInstance) {
         if (!raffle) {
           return reply.code(404).send({ message: "Rifa não encontrada." });
         }
-        reply.code(200).send(raffle);
+        const response = { ...raffle, soldTicketsCount };
+        reply.code(200).send(response);
       } catch (error) {
         return reply.code(500).send({ message: "Internal server error" });
       }
