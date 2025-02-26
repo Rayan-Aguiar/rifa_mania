@@ -699,6 +699,93 @@ export async function raffleRoutes(app: FastifyInstance) {
     }
   );
 
+  app.get("/raffles/:id/winners",{ 
+    preHandler: [verifyToken],
+    schema: {
+      description: 'Obtém o vencedor de uma rifa já sorteada',
+      tags: ['Rifa'],
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', description: 'ID da rifa' },
+        },
+        required: ['id'],
+      },
+      response: {
+        200: {
+          description: 'Vencedor encontrado',
+          type: 'object',
+          properties: {
+            winningNumber: { type: 'string', description: 'Número vencedor' },
+            buyerName: { type: 'string', description: 'Nome do comprador' },
+            buyerEmail: { type: 'string', description: 'Email do comprador' },
+            buyerPhone: { type: 'string', description: 'Telefone do comprador' },
+          },
+        },
+        400: {
+          description: 'Rifa não sorteada ou não encontrada',
+          type: 'object',
+          properties: {
+            message: { type: 'string' },
+          },
+        },
+        404: {
+          description: 'Nenhum vencedor encontrado',
+          type: 'object',
+          properties: {
+            message: { type: 'string' },
+          },
+        },
+        500: {
+          description: 'Erro interno do servidor',
+          type: 'object',
+          properties: {
+            message: { type: 'string' },
+          },
+        },
+      },
+    },
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id  } = request.params as { id : string }
+    console.log("Raffle ID:", id);
+    if (!id) {
+      return reply.code(400).send({ message: "ID da rifa é obrigatório" });
+    }
+    try {
+      const raffle = await prisma.raffle.findUnique({
+        where: { id: id },
+        select: { status: true}
+      })
+      if (!raffle){
+        return reply.code(404).send({ message: "Rifa não encontrada" });
+      }
+      if (raffle.status !== RaffleStatus.CONCLUDED){
+        return reply.code(400).send({ message: "A rifa ainda não foi sorteada" })
+      }
+      const winnerParticipation = await prisma.participation.findFirst({
+        where: { raffleId: id },
+        select: {
+          number: true,
+          buyerName: true,
+          buyerEmail: true,
+          buyerPhone: true,
+        },
+      });
+      if (!winnerParticipation) {
+        return reply.code(404).send({ message: "Nenhum vencedor encontrado" });
+      }
+      reply.send({
+        winningNumber: winnerParticipation.number.toString(),
+        buyerName: winnerParticipation.buyerName,
+        buyerEmail: winnerParticipation.buyerEmail,
+        buyerPhone: winnerParticipation.buyerPhone,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar vencedor da rifa:", error);
+      reply.code(500).send({ message: "Erro interno do servidor" });
+    }
+  })
+
   app.get(
     "/raffles/ticket-quantities",
     { preHandler: [verifyToken],
