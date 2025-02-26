@@ -47,9 +47,8 @@ SECRET_KEY=
 
 ## 📜 Documentação da API
 
-1.    ```bash
-        http://localhost:3333/docs
-    ```
+    http://localhost:3333/docs
+    
 
 ## Contribuindo
 
