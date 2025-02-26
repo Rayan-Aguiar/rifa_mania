@@ -28,7 +28,7 @@ export async function drawRaffle(raffleId: string) {
 
   await prisma.raffle.update({
     where: { id: raffleId },
-    data: { status: RaffleStatus.CONCLUDED },
+    data: { status: RaffleStatus.CONCLUDED, closed: true },
   });
 
   return {
