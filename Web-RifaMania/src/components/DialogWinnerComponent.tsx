@@ -69,13 +69,13 @@ export const DialogWinnerComponent = ({
       <AnimatePresence>
         <Dialog open={isOpen} onOpenChange={onClose}>
           <Confetti width={width} height={height} />
+          <DialogContent>
           <DialogHeader>
             <DialogTitle>Vencedor da Rifa!</DialogTitle>
             <DialogDescription>
               Aqui estão os dados do vencedor da rifa!
             </DialogDescription>
           </DialogHeader>
-          <DialogContent>
             <Confetti width={width} height={height} />
 
             {isLoading ? (
