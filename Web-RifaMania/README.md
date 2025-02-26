@@ -1,50 +1,56 @@
-# React + TypeScript + Vite
+# Frontend - Rifa Mania
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este repositório contém o frontend do sistema de rifas online, desenvolvido com React.
 
-Currently, two official plugins are available:
+## Funcionalidades
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Interface para visualização de rifas e números disponíveis.
+- Possibilidade de participar das rifas e visualizar os resultados.
+- Integração com o backend para atualização de status e sorteio.
+- Interface para criação de rifas e venda com links compartilhaveis.
 
-## Expanding the ESLint configuration
+## Tecnologias Utilizadas
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- **React**
+- **Tailwind CSS**
+- **Axios (para chamadas à API)**
+- **React Router (para navegação entre páginas)**
 
-- Configure the top-level `parserOptions` property like this:
+## Como Rodar o Projeto
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+### Pré-requisitos
+- Node.js
+- npm ou yarn
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+### Passos
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+1. Clone o repositório:
+    ```bash
+    git clone https://github.com/Rayan-Aguiar/rifa_mania
+    cd rifa-mania/Web-RifaMania
+    ```
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+2. Instale as dependências:
+    ```bash
+    npm install
+    ```
+
+3. Execute o projeto:
+    ```bash
+    npm run dev
+    ```
+
+4. Acesse o frontend em `http://localhost:5173` ou fique a vontade para trocar para outro endereço de sua preferencia.
+
+### Observações
+
+- Verifique se o backend está rodando para que as chamadas à API funcionem corretamente.
+- O projeto está configurado para funcionar com um servidor local de desenvolvimento.
+
+## Contribuindo
+
+Se desejar contribuir, siga os mesmos passos mencionados no README principal.
+
+## Licença
+
+Este projeto está licenciado sob a MIT License.
