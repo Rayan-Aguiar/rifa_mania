@@ -219,6 +219,7 @@ export async function raffleRoutes(app: FastifyInstance) {
             properties: {
               id: { type: "string", description: "ID da rifa" },
               name: { type: "string", description: "Nome da rifa" },
+              description: { type: "string", description: "Descrição da rifa"},
               drawDate: {
                 type: "string",
                 format: "date-time",
@@ -266,7 +267,8 @@ export async function raffleRoutes(app: FastifyInstance) {
               prizeImage: {
                 type: 'string',
                 description: "URL da imagem do prêmio",
-              }
+              },
+              
             },
           },
           404: {
@@ -541,6 +543,7 @@ export async function raffleRoutes(app: FastifyInstance) {
             name: { type: "string", description: "Nome da rifa" },
             totalNumbers: { type: "number", description: "Número total de bilhetes disponíveis" },
             prizeImage: { type: "string", nullable: true, description: "URL da imagem do prêmio (opcional)" },
+            description: { type: "string", description: "Descrição da rifa"}
           },
           required: ["name", "totalNumbers"],
         },
@@ -555,6 +558,7 @@ export async function raffleRoutes(app: FastifyInstance) {
               prizeImage: { type: "string", nullable: true, description: "URL da imagem do prêmio" },
               status: { type: "string", description: "Status da rifa" },
               creatorId: { type: "string", description: "ID do criador da rifa" },
+              description: { type: "string", description: "Descrição da rifa"}
             },
           },
           400: {
@@ -593,6 +597,7 @@ export async function raffleRoutes(app: FastifyInstance) {
           name: z.string(),
           totalNumbers: z.number(),
           prizeImage: z.string().nullable().optional(),
+          description: z.string().optional(),
         });
         const raffleData = raffleSchema.parse(request.body);
 
@@ -626,6 +631,7 @@ export async function raffleRoutes(app: FastifyInstance) {
             uniqueLink,
             availableNumbersCount: raffleData.totalNumbers,
             prizeImage: imagePath,
+            description: raffleData.description
           },
         });
         reply.code(200).send(updatedRaffle);
