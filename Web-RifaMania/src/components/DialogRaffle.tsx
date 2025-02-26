@@ -106,6 +106,7 @@ export const DialogRaffle = ({ isOpen, onClose, id }: DialogRaffleProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
+        {step === 2 && <Confetti width={width} height={height} />}
       <DialogContent className="overflow-hidden">
         {step === 2 && <Confetti width={width} height={height} />}
         <DialogHeader>

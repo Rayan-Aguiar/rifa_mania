@@ -1,4 +1,4 @@
-import { Bolt, Clover, Ticket, TimerReset } from "lucide-react"
+import { Bolt, Clover, Ticket, TimerReset, Trophy } from "lucide-react"
 import { Button } from "./ui/button"
 import { Badge } from "./ui/badge"
 import { RaffleProps } from "@/@types/Raffle"
@@ -7,6 +7,7 @@ import imgDefault from "@/assets/sorteio.webp"
 import { Link } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { DialogRaffle } from "./DialogRaffle"
+import { DialogWinnerComponent } from "./DialogWinnerComponent"
 
 const statusColors: Record<string, string> = {
   Online: "bg-raffle-main hover:bg-raffle-main/90 shadow-none",
@@ -29,8 +30,9 @@ export const CardRaffles = ({
 }: RaffleProps) => {
   const badgeClass = statusColors[status] || "bg-gray-400"
   const remainingDays = calculateRemainingDays(drawDate)
-  const [openDialog, setOpenDialog] = useState(false)
-  const [drawRaffle, setDrawRaffle] = useState(status)
+  const [ openDialog, setOpenDialog ] = useState(false)
+  const [ openDialogWinner, setOpenDialogWinnder ] = useState(false)
+  const [ drawRaffle, setDrawRaffle ] = useState(status)
 
   const statusMap: Record<
     string,
@@ -40,7 +42,7 @@ export const CardRaffles = ({
     Online: "ONLINE",
     Cancelado: "CANCELLED",
     Expirado: "EXPIRED",
-    Concluído: "CONCLUDED",
+    Concluido: "CONCLUDED",
   }
 
   useEffect(() => {
@@ -51,6 +53,9 @@ export const CardRaffles = ({
 
   const handleOpenAndCloseDialog = () => {
     setOpenDialog(!openDialog)
+  }
+  const handleOpenAndCloseDialogWinner = () => {
+    setOpenDialogWinnder(!openDialogWinner)
   }
 
   const handleOpenRaffle = () => {
@@ -97,7 +102,21 @@ export const CardRaffles = ({
       </div>
 
       <div className="flex w-full gap-2">
-        {drawRaffle !== "SORTING" ? (
+        {drawRaffle === "SORTING" ? (
+          <Button
+            className="flex w-full gap-2 rounded-xl bg-gradient-to-r from-green-500 to-green-700 p-4 hover:from-green-600 hover:to-green-800"
+            onClick={handleOpenAndCloseDialog}
+          >
+            Sortear Rifa <Clover />
+          </Button>
+        ) : drawRaffle === "CONCLUDED" ? (
+          <Button
+            className="flex w-full gap-2 rounded-xl bg-transparent border-raffle-main border-2 p-4 hover:bg-raffle-main text-raffle-main hover:text-white duration-150"
+            onClick={handleOpenAndCloseDialogWinner}
+          >
+            Ver Vencedor <Trophy />
+          </Button>
+        ) : (
           <>
             <Button
               onClick={handleOpenRaffle}
@@ -112,15 +131,15 @@ export const CardRaffles = ({
               </Button>
             </Link>
           </>
-        ) : (
-          <Button
-            className="flex w-full gap-2 rounded-xl bg-gradient-to-r from-green-500 to-green-700 p-4 hover:from-green-600 hover:to-green-800"
-            onClick={handleOpenAndCloseDialog}
-          >
-            Sortear Rifa <Clover />
-          </Button>
         )}
-        {openDialog && <DialogRaffle id={id} isOpen={openDialog} onClose={handleOpenAndCloseDialog} />}
+        {openDialog && (
+          <DialogRaffle
+            id={id}
+            isOpen={openDialog}
+            onClose={handleOpenAndCloseDialog}
+          />
+        )}
+        {openDialogWinner && (<DialogWinnerComponent id={id} isOpen={openDialogWinner} onClose={handleOpenAndCloseDialogWinner}/>)}
       </div>
     </div>
   )
