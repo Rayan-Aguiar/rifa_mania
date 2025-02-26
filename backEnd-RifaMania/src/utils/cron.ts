@@ -3,7 +3,7 @@ import { updateRaffleStatuses } from "../functions/updateRaffleStatuses";
 
 export const startCronJob = () => {
   try {
-    cron.schedule('*/10 * * * *"', async () => {
+    cron.schedule('0 * * * *', async () => {
       console.log("Executando a atualização de status...");
       await updateRaffleStatuses();
     });

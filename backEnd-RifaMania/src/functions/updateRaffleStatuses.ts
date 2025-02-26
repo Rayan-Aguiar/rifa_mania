@@ -10,7 +10,7 @@ export async function updateRaffleStatuses() {
         lte: now,
       },
       status: {
-        not: RaffleStatus.SORTING,
+        notIn: [RaffleStatus.SORTING, RaffleStatus.CONCLUDED],
       },
     },
     data: {
@@ -23,10 +23,10 @@ export async function updateRaffleStatuses() {
     where: {
       closed: false,
       availableNumbersCount: 0,
-      AND: [
-        { status: RaffleStatus.ONLINE },
-        { status: { not: RaffleStatus.CONCLUDED } },
-      ],
+      status: RaffleStatus.ONLINE,
+      NOT: {
+        status: RaffleStatus.CONCLUDED,
+      },
     },
   });
 
