@@ -30,9 +30,9 @@ export const CardRaffles = ({
 }: RaffleProps) => {
   const badgeClass = statusColors[status] || "bg-gray-400"
   const remainingDays = calculateRemainingDays(drawDate)
-  const [ openDialog, setOpenDialog ] = useState(false)
-  const [ openDialogWinner, setOpenDialogWinnder ] = useState(false)
-  const [ drawRaffle, setDrawRaffle ] = useState(status)
+  const [openDialog, setOpenDialog] = useState(false)
+  const [openDialogWinner, setOpenDialogWinnder] = useState(false)
+  const [drawRaffle, setDrawRaffle] = useState(status)
 
   const statusMap: Record<
     string,
@@ -87,7 +87,12 @@ export const CardRaffles = ({
       <div>
         <p className="text-lg font-semibold">{name}</p>
         <p className="flex items-center gap-1 text-sm">
-          {remainingDays === 0 ? (
+          {drawRaffle === "CONCLUDED" ? (
+            <span className="text-xs font-normal italic">
+              A rifa já foi sorteada! Clique em 'Ver Vencedor' para conferir os
+              dados do vencedor.
+            </span>
+          ) : remainingDays === 0 ? (
             <span className="text-xs font-normal italic">
               O prazo acabou! Agora é só clicar em 'Sortear Rifa' e conferir o
               vencedor.
@@ -111,7 +116,7 @@ export const CardRaffles = ({
           </Button>
         ) : drawRaffle === "CONCLUDED" ? (
           <Button
-            className="flex w-full gap-2 rounded-xl bg-transparent border-raffle-main border-2 p-4 hover:bg-raffle-main text-raffle-main hover:text-white duration-150"
+            className="flex w-full gap-2 rounded-xl border-2 border-raffle-main bg-transparent p-4 text-raffle-main duration-150 hover:bg-raffle-main hover:text-white"
             onClick={handleOpenAndCloseDialogWinner}
           >
             Ver Vencedor <Trophy />
@@ -139,7 +144,13 @@ export const CardRaffles = ({
             onClose={handleOpenAndCloseDialog}
           />
         )}
-        {openDialogWinner && (<DialogWinnerComponent id={id} isOpen={openDialogWinner} onClose={handleOpenAndCloseDialogWinner}/>)}
+        {openDialogWinner && (
+          <DialogWinnerComponent
+            id={id}
+            isOpen={openDialogWinner}
+            onClose={handleOpenAndCloseDialogWinner}
+          />
+        )}
       </div>
     </div>
   )
